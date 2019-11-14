@@ -46,36 +46,5 @@ public class AsynchronousProcess extends Thread{
                     System.out.println("["+this.port+"]: Messaging Service Started");
                 });
 
-
-
-        // testing connection, not functionality
-        Runnable task = () -> {
-            for (int i = 0; i < this.network.length; i++) {
-                this.mms.sendAsync(Address.from(this.network[i]), "HELLO", s.encode("HELLO"));
-            }
-        };
-
-        ScheduledFuture<?> scheduledFuture = e.scheduleAtFixedRate(task,1000,  1000,TimeUnit.MILLISECONDS);
-
-        AtomicInteger netLen = new AtomicInteger(5);
-        List<Integer> servers = new ArrayList<>();
-        this.mms.registerHandler("HELLO",(a,b) -> {
-
-            System.out.println("["+this.port+"]: Message Received from "+a.port());
-
-            if(!servers.contains(a.port())){
-                netLen.getAndDecrement();
-                servers.add(a.port());
-                if(netLen.get() == 0){
-                    scheduledFuture.cancel(false);
-                    this.mms.stop()
-                            .thenRun(() -> {
-                                System.out.println("["+this.port+"]: Messaging Service Stoped");
-                                System.exit(0);
-                            });
-                }
-            }
-        }, e);
-
     }
 }
