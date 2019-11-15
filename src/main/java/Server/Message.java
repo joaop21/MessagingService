@@ -5,13 +5,13 @@ import java.util.Map;
 /**
  * This class is intended to represent the messages exchanged between servers.
  * */
-public class Message<T> {
+class Message<T> {
     /** Sender port */
-    public int port;
+    int port;
     /** Represents any object which is intended to be exchanged among servers */
-    public final T object;
+    private final T object;
     /** An event vector --> Map<server port, event counter> */
-    public Map<Integer,Integer> sender_vector_clock;
+    Map<Integer,Integer> sender_vector_clock;
 
     /**
      * Constructor that initializes an instance of Message.
@@ -21,4 +21,11 @@ public class Message<T> {
         this.object = obj;
         this.sender_vector_clock = clock;
     }
+
+    /**
+     * Getter for instance variable Object.
+     *
+     * @return T Object that is passed on the Message.
+     * */
+    public T getObject(){ return this.object;}
 }

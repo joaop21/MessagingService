@@ -7,37 +7,22 @@ import io.atomix.utils.net.Address;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.*;
 
-public class AsynchronousProcess extends Thread{
+class AsynchronousProcess extends Thread{
     private int port;
     private ManagedMessagingService mms;
+    private Serializer serializer;
     private int[] network;
 
     /**
      * Parameterized constructor that initializes an instance of AsynchronousProcess.
+     *
+     * @param p The port where the server will operate.
      * */
     public AsynchronousProcess(int p){
         this.port = p;
         this.network = new int[]{ 12345, 23456, 34567, 45678, 56789 };
-    }
-
-    /**
-     * This method is the thread's work while it's running.
-     * Initializes the Messaging Service and registers the fundamental handlers.
-     * */
-    @Override
-    public void run() {
-        // Thread pool for execution
-        ScheduledExecutorService e = Executors.newScheduledThreadPool(1);
-
-        Serializer s = new SerializerBuilder().build();
 
         // Initializes Atomix messaging service
         this.mms = new NettyMessagingService("AsyncProcesses", Address.from(this.port), new MessagingConfig());
@@ -46,5 +31,36 @@ public class AsynchronousProcess extends Thread{
                     System.out.println("["+this.port+"]: Messaging Service Started");
                 });
 
+        // Initializes a Serializer capable of encode and decode Messages
+        this.serializer = new SerializerBuilder()
+                .addType(Message.class)
+                .build();
+    }
+
+    /**
+     * This method is the thread work while it's running.
+     * Registers the fundamental handlers for events.
+     * */
+    @Override
+    public void run() {
+        // Thread pool for execution
+        ExecutorService e = Executors.newFixedThreadPool(1);
+
+        // handler for an event "Message"
+        this.mms.registerHandler("Message",(a,b) -> {
+
+        },e);
+    }
+
+    /**
+     * Sends Message to all adjacent servers.
+     *
+     * @param msg The message to be sent.
+     *
+     * */
+    public void sendMessages(Message msg){
+        for(int i = 0; i < this.network.length; i++){
+            this.mms.sendAsync(Address.from(this.network[i]),"Message", this.serializer.encode(msg));
+        }
     }
 }
