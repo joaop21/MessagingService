@@ -8,14 +8,17 @@ class CausalDelivery {
     private Map<Integer,Integer> local_vector_clock = new HashMap<>();
     private List<Message> waiting_queue = new LinkedList<>();
     private AsynchronousProcess asp;
+    private MiddlewareFacade mfac;
 
     /**
      * Parameterized constructor that initializes an instance of CausalDelivery.
      *
      * @param p The port where the server will operate.
+     * @param mfac The Facade that need to be accessed from this class.
      * */
-    public CausalDelivery(int p){
+    CausalDelivery(int p, MiddlewareFacade mfac){
         this.port = p;
+        this.mfac = mfac;
 
         // initialize local_vector_clock
         this.local_vector_clock.put(12345,0);
@@ -50,11 +53,38 @@ class CausalDelivery {
         // When passes the Causal tests, change the clock
         this.local_vector_clock.replace(msg.port, (int) msg.sender_vector_clock.get(msg.port));
 
-        // delivers to edge class
-        //this.mt.write(Address.from(msg.port), msg.message);
+        // delivers to facade class
+        this.mfac.addMessage(msg);
 
         // Makes the routine N times until the state get consistent
-        //while (checkPendingMessages()) ;
+        // Could exist messages on the end of the queue that unlock messages on the first places
+        // it's necessary run N time
+        while(checkPendingMessages());
+    }
+
+    /**
+     * Routine that checks if waiting messages are ready to be shown.
+     * It has to check causal rules.
+     * Returns true on the first message that passes the test.
+     *
+     * @return Boolean Value returned if there was/wasn't a message ready to be delivered.
+     * */
+    private boolean checkPendingMessages(){
+        int tam = this.waiting_queue.size(); // calculated only once
+        for(int i = 0 ; i < tam ; i++){
+            Message msg = this.waiting_queue.get(i);
+
+            if(firstCausalRule(msg) && secondCausalRule(msg)){
+                // When passes the Causal tests, change the clock
+                this.local_vector_clock.replace(msg.port, (int) msg.sender_vector_clock.get(msg.port));
+                // delivers to facade class
+                this.mfac.addMessage(msg);
+                // removes from queue
+                this.waiting_queue.remove(i);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

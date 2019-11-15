@@ -13,7 +13,7 @@ public class MiddlewareFacade {
      * @param p The port where the server will operate.
      * */
     public MiddlewareFacade(int p){
-        this.cd = new CausalDelivery(p);
+        this.cd = new CausalDelivery(p,this);
     }
 
     /**
