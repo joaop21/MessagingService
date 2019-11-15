@@ -9,7 +9,7 @@ public class MainTester {
     public static void main(String[] args) {
         int port = Integer.parseInt(args[0]);
 
-        new Thread(new AsynchronousProcess(port)).run();
+        CausalDelivery cd = new CausalDelivery(port);
     }
 
 }

@@ -1,7 +1,5 @@
 package Server;
 
-import io.atomix.utils.net.Address;
-
 import java.util.*;
 
 class CausalDelivery {
@@ -9,6 +7,7 @@ class CausalDelivery {
     private int event_counter = 0;
     private Map<Integer,Integer> local_vector_clock = new HashMap<>();
     private List<Message> waiting_queue = new LinkedList<>();
+    private AsynchronousProcess asp;
 
     /**
      * Parameterized constructor that initializes an instance of CausalDelivery.
@@ -17,10 +16,24 @@ class CausalDelivery {
      * */
     public CausalDelivery(int p){
         this.port = p;
+
+        // initialize local_vector_clock
+        this.local_vector_clock.put(12345,0);
+        this.local_vector_clock.put(23456,0);
+        this.local_vector_clock.put(34567,0);
+        this.local_vector_clock.put(45678,0);
+        this.local_vector_clock.put(56789,0);
+
+        // Starting AsynchronousProcess thread
+        this.asp = new AsynchronousProcess(this.port,this, this.local_vector_clock.keySet().toArray());
+        new Thread(this.asp).start();
     }
 
     /**
+     * Method that is responsable for testing causal delivery rules and act depending
+     *   on the situation.
      *
+     * @param msg Message that contains info to analyse.
      * */
     public void receive(Message msg){
 

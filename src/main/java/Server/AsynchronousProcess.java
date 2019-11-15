@@ -7,22 +7,27 @@ import io.atomix.utils.net.Address;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
 
+import java.util.Arrays;
 import java.util.concurrent.*;
 
 class AsynchronousProcess extends Thread{
     private int port;
+    private CausalDelivery cd;
+    private int[] network;
     private ManagedMessagingService mms;
     private Serializer serializer;
-    private int[] network;
 
     /**
      * Parameterized constructor that initializes an instance of AsynchronousProcess.
      *
      * @param p The port where the server will operate.
+     * @param c An instance of the CausalDelivery object.
+     * @param net An array containing ints representing the ports that the servers are running.
      * */
-    public AsynchronousProcess(int p){
+    AsynchronousProcess(int p, CausalDelivery c, Object[] net){
         this.port = p;
-        this.network = new int[]{ 12345, 23456, 34567, 45678, 56789 };
+        this.cd = c;
+        this.network = Arrays.stream(net).mapToInt(o -> (int) o).toArray();
 
         // Initializes Atomix messaging service
         this.mms = new NettyMessagingService("AsyncProcesses", Address.from(this.port), new MessagingConfig());
