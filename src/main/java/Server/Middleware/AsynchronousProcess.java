@@ -1,4 +1,4 @@
-package Server;
+package Server.Middleware;
 
 import io.atomix.cluster.messaging.ManagedMessagingService;
 import io.atomix.cluster.messaging.MessagingConfig;

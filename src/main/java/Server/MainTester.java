@@ -9,7 +9,7 @@ public class MainTester {
     public static void main(String[] args) {
         int port = Integer.parseInt(args[0]);
 
-        CausalDelivery cd = new CausalDelivery(port);
+        //CausalDelivery cd = new CausalDelivery(port);
     }
 
 }

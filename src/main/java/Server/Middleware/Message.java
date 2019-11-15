@@ -1,4 +1,4 @@
-package Server;
+package Server.Middleware;
 
 import java.util.Map;
 
