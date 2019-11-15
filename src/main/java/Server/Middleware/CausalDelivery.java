@@ -1,6 +1,7 @@
 package Server.Middleware;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 class CausalDelivery {
     private int port;
@@ -38,7 +39,7 @@ class CausalDelivery {
      *
      * @param msg Message that contains info to analyse.
      * */
-    public void receive(Message msg){
+    synchronized void receive(Message msg){
 
         if (firstCausalRule(msg)) {
             if(!secondCausalRule(msg)) {
@@ -60,6 +61,18 @@ class CausalDelivery {
         // Could exist messages on the end of the queue that unlock messages on the first places
         // it's necessary run N time
         while(checkPendingMessages());
+    }
+
+    /**
+     * Method that increments the event counter and sends the massage to other servers.
+     *
+     * @param obj Object to be passed to the other servers.
+     * */
+    synchronized void send(Object obj){
+        this.event_counter++;
+        this.local_vector_clock.replace(this.port, this.event_counter);
+        Message msg = new Message(this.port, obj, this.local_vector_clock);
+        this.asp.sendMessage(msg);
     }
 
     /**

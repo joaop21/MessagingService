@@ -53,7 +53,7 @@ class AsynchronousProcess extends Thread{
 
         // handler for an event "Message"
         this.mms.registerHandler("Message",(a,b) -> {
-
+            this.cd.receive(serializer.decode(b));
         },e);
     }
 
@@ -63,9 +63,9 @@ class AsynchronousProcess extends Thread{
      * @param msg The message to be sent.
      *
      * */
-    public void sendMessages(Message msg){
-        for(int i = 0; i < this.network.length; i++){
-            this.mms.sendAsync(Address.from(this.network[i]),"Message", this.serializer.encode(msg));
-        }
+    void sendMessage(Message msg){
+        for (int value : this.network)
+            if(value!=this.port)
+                this.mms.sendAsync(Address.from(value), "Message", this.serializer.encode(msg));
     }
 }

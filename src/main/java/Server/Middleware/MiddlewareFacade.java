@@ -38,4 +38,8 @@ public class MiddlewareFacade {
 
         return this.ordered_messages.poll().getObject();
     }
+
+    public void sendMessage(Object o){
+        this.cd.send(o);
+    }
 }
