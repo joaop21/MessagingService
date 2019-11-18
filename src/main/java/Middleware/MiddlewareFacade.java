@@ -39,7 +39,21 @@ public class MiddlewareFacade {
         return this.ordered_messages.poll().getObject();
     }
 
-    public void sendMessage(Object o){
-        this.cd.send(o);
+    /**
+     * Method that send message to other servers
+     *
+     * @param o Object inside the message
+     * */
+    public void sendServerMessage(Object o){
+        this.cd.sendServerMessage(o);
+    }
+
+    /**
+     * Method that send message to other servers
+     *
+     * @param o Object inside the message
+     * */
+    public void sendClientMessage(Object o, int client_port){
+        this.cd.sendClientMessage(o, client_port);
     }
 }

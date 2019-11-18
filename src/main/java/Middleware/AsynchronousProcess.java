@@ -52,8 +52,13 @@ class AsynchronousProcess extends Thread{
         ExecutorService e = Executors.newFixedThreadPool(1);
 
         // handler for an event "Message"
-        this.mms.registerHandler("Message",(a,b) -> {
+        this.mms.registerHandler("ServerMessage",(a,b) -> {
             this.cd.receive(serializer.decode(b));
+        },e);
+
+        // handler for an event "Message"
+        this.mms.registerHandler("ClientMessage",(a,b) -> {
+            this.cd.receiveClientMessage(serializer.decode(b));
         },e);
     }
 
@@ -63,9 +68,19 @@ class AsynchronousProcess extends Thread{
      * @param msg The message to be sent.
      *
      * */
-    void sendMessage(Message msg){
+    void sendServerMessage(Message msg){
         for (int value : this.network)
             if(value!=this.port)
-                this.mms.sendAsync(Address.from(value), "Message", this.serializer.encode(msg));
+                this.mms.sendAsync(Address.from(value), "ServerMessage", this.serializer.encode(msg));
+    }
+
+    /**
+     * Sends Message to all adjacent servers.
+     *
+     * @param msg The message to be sent.
+     *
+     * */
+    void sendClientMessage(Message msg, int client_port){
+        this.mms.sendAsync(Address.from(client_port), "ClientMessage", this.serializer.encode(msg));
     }
 }
