@@ -63,15 +63,34 @@ class CausalDelivery {
     }
 
     /**
+     * Method that is responsable for passing messages to MiddlewareFacade
+     *
+     * @param msg Message that will be passed
+     * */
+    synchronized void receiveClientMessage(Message msg){
+        this.mfac.addMessage(msg);
+    }
+
+    /**
      * Method that increments the event counter and sends the massage to other servers.
      *
      * @param obj Object to be passed to the other servers.
      * */
-    synchronized void send(Object obj){
+    synchronized void sendServerMessage(Object obj){
         this.event_counter++;
         this.local_vector_clock.replace(this.port, this.event_counter);
         Message msg = new Message(this.port, obj, this.local_vector_clock);
-        this.asp.sendMessage(msg);
+        this.asp.sendServerMessage(msg);
+    }
+
+    /**
+     * Method that increments the event counter and sends the massage to other servers.
+     *
+     * @param obj Object to be passed to the other servers.
+     * */
+    synchronized void sendClientMessage(Object obj, int client_port){
+        Message msg = new Message(this.port, obj, null);
+        this.asp.sendClientMessage(msg, client_port);
     }
 
     /**

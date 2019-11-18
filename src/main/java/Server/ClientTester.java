@@ -5,14 +5,10 @@ import Middleware.MiddlewareFacade;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-/**
- * This class is for testing the current code.
- * In the future it will be deleted.
- * */
-public class MainTester extends Thread{
+public class ClientTester extends Thread {
     private static MiddlewareFacade mfac;
 
-    public MainTester(MiddlewareFacade mfa){
+    public ClientTester(MiddlewareFacade mfa){
         mfac = mfa;
     }
 
@@ -40,12 +36,11 @@ public class MainTester extends Thread{
         try {
             String current;
             while ((current = sin.readLine()) != null) {
-                mfac.sendServerMessage(current);
+                mfac.sendClientMessage(current,12345);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }
