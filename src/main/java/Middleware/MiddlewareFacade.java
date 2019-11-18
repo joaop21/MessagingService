@@ -3,6 +3,7 @@ package Middleware;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 public class MiddlewareFacade {
     private CausalDelivery cd;
@@ -38,11 +39,11 @@ public class MiddlewareFacade {
      *
      * @return Object Object that was exchanged in messages.
      * */
-    public synchronized Object getMessage() throws InterruptedException {
+    public synchronized CompletableFuture<Object> getMessage() throws InterruptedException {
         while(this.ordered_messages.size() == 0)
             wait();
 
-        return this.ordered_messages.poll().getObject();
+        return CompletableFuture.completedFuture(this.ordered_messages.poll().getObject());
     }
 
     /**
