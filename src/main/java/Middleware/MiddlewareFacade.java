@@ -2,10 +2,12 @@ package Middleware;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Random;
 
 public class MiddlewareFacade {
     private CausalDelivery cd;
     private Queue<Message> ordered_messages = new LinkedList<>();
+    private int server_port;
 
     /**
      * Parameterized constructor that initializes an instance of MiddlewareFacade.
@@ -13,7 +15,11 @@ public class MiddlewareFacade {
      * @param p The port where the server will operate.
      * */
     public MiddlewareFacade(int p){
-        this.cd = new CausalDelivery(p,this);
+        int[] network = new int[]{12345, 23456, 34567, 45678, 56789};
+        this.cd = new CausalDelivery(p,this, network);
+
+        Random rand = new Random();
+        this.server_port = network[rand.nextInt(5)];
     }
 
     /**
@@ -53,7 +59,7 @@ public class MiddlewareFacade {
      *
      * @param o Object inside the message
      * */
-    public void sendClientMessage(Object o, int client_port){
-        this.cd.sendClientMessage(o, client_port);
+    public void sendClientMessage(Object o){
+        this.cd.sendClientMessage(o, this.server_port);
     }
 }

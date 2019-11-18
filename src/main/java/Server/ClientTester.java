@@ -36,7 +36,7 @@ public class ClientTester extends Thread {
         try {
             String current;
             while ((current = sin.readLine()) != null) {
-                mfac.sendClientMessage(current,12345);
+                mfac.sendClientMessage(current);
             }
 
         } catch (Exception e) {
