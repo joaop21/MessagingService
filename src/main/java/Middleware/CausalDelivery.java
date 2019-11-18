@@ -16,16 +16,13 @@ class CausalDelivery {
      * @param p The port where the server will operate.
      * @param mfac The Facade that need to be accessed from this class.
      * */
-    CausalDelivery(int p, MiddlewareFacade mfac){
+    CausalDelivery(int p, MiddlewareFacade mfac, int[] net){
         this.port = p;
         this.mfac = mfac;
 
         // initialize local_vector_clock
-        this.local_vector_clock.put(12345,0);
-        this.local_vector_clock.put(23456,0);
-        this.local_vector_clock.put(34567,0);
-        this.local_vector_clock.put(45678,0);
-        this.local_vector_clock.put(56789,0);
+        for (int value : net)
+            this.local_vector_clock.put(value, 0);
 
         // Starting AsynchronousProcess thread
         this.asp = new AsynchronousProcess(this.port,this, this.local_vector_clock.keySet().toArray());
