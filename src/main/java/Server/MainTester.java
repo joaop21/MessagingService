@@ -1,6 +1,6 @@
 package Server;
 
-import Server.Middleware.MiddlewareFacade;
+import Middleware.MiddlewareFacade;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

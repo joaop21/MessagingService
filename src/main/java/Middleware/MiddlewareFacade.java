@@ -1,4 +1,4 @@
-package Server.Middleware;
+package Middleware;
 
 import java.util.LinkedList;
 import java.util.Queue;

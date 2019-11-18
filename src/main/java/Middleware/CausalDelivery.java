@@ -1,7 +1,6 @@
-package Server.Middleware;
+package Middleware;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 class CausalDelivery {
     private int port;
