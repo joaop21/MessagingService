@@ -6,7 +6,12 @@ import java.io.InputStreamReader;
 
 import Middleware.MiddlewareFacade;
 
+import io.atomix.utils.serializer.Serializer;
+import io.atomix.utils.serializer.SerializerBuilder;
+
 public class Client {
+
+    static Serializer serializer = new SerializerBuilder().addType(Operation.class).build();
 
     public static void initializeChat(BufferedReader sin, int port, MiddlewareFacade midd) throws IOException {
         System.out.println("------ Welcome to MessagingService! ------\n\n");
@@ -43,9 +48,9 @@ public class Client {
         String password = sin.readLine();
         System.out.println("\nTrying to login...");
 
-        // Operation op = new Operation("login", username, password);
-        // midd.sendClientMessage(op.serialize());
-        midd.sendClientMessage("login;" + username + ";" + password);
+        String[] args = { username, password };
+        Operation op = new Operation("login", args);
+        midd.sendClientMessage(serializer.encode(op));
 
         // wait for answer??
     }
