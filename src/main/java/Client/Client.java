@@ -49,7 +49,7 @@ public class Client {
         System.out.println("\nTrying to login...");
 
         String[] args = { username, password };
-        Operation op = new Operation("login", args);
+        Operation op = new Operation(Messages.LOGIN, args);
         midd.sendClientMessage(serializer.encode(op));
 
         // wait for answer??
@@ -63,9 +63,9 @@ public class Client {
         String password = sin.readLine();
         System.out.println("\nTrying to register...");
 
-        // Operation op = new Operation("register", username, password);
-        // midd.sendClientMessage(op.serialize());
-        midd.sendClientMessage("register;" + username + ";" + password);
+        String[] args = { username, password };
+        Operation op = new Operation(Messages.REGISTER, args);
+        midd.sendClientMessage(serializer.encode(op));
 
         // wait for answer??
     }

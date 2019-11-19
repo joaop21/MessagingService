@@ -1,17 +1,17 @@
 public class Operation {
-    private String type;
+    private Messages type;
     private String[] args;
 
-    public Operation(String type, String[] args) {
+    public Operation(Messages type, String[] args) {
         this.type = type;
         this.args = args;
     }
 
-    public String getType() {
+    public Messages getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Messages type) {
         this.type = type;
     }
 
