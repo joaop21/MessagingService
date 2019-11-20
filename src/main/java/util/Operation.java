@@ -1,17 +1,19 @@
+package util;
+
 public class Operation {
-    private Messages type;
+    private OperationType type;
     private String[] args;
 
-    public Operation(Messages type, String[] args) {
+    public Operation(OperationType type, String[] args) {
         this.type = type;
         this.args = args;
     }
 
-    public Messages getType() {
+    public OperationType getType() {
         return type;
     }
 
-    public void setType(Messages type) {
+    public void setType(OperationType type) {
         this.type = type;
     }
 

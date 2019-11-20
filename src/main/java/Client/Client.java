@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 
 import Middleware.MiddlewareFacade;
 
+import util.*;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
 
@@ -49,7 +50,7 @@ public class Client {
         System.out.println("\nTrying to login...");
 
         String[] args = { username, password };
-        Operation op = new Operation(Messages.LOGIN, args);
+        Operation op = new Operation(OperationType.LOGIN, args);
         midd.sendClientMessage(serializer.encode(op));
 
         // wait for answer??
@@ -64,7 +65,7 @@ public class Client {
         System.out.println("\nTrying to register...");
 
         String[] args = { username, password };
-        Operation op = new Operation(Messages.REGISTER, args);
+        Operation op = new Operation(OperationType.REGISTER, args);
         midd.sendClientMessage(serializer.encode(op));
 
         // wait for answer??
