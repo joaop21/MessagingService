@@ -19,12 +19,13 @@ public class MainTester extends Thread{
     @Override
     public void run() {
         while(true){
+            /*
             try {
                 String line = (String) mfac.getMessage();
                 System.out.println(line);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 
