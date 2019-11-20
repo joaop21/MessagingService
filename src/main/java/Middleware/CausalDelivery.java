@@ -8,17 +8,17 @@ class CausalDelivery {
     private Map<Integer,Integer> local_vector_clock = new HashMap<>();
     private List<Message> waiting_queue = new LinkedList<>();
     private AsynchronousProcess asp;
-    private MiddlewareFacade mfac;
+    private Middleware midd;
 
     /**
      * Parameterized constructor that initializes an instance of CausalDelivery.
      *
      * @param p The port where the server will operate.
-     * @param mfac The Facade that need to be accessed from this class.
+     * @param midd The Facade that need to be accessed from this class.
      * */
-    CausalDelivery(int p, MiddlewareFacade mfac, int[] net){
+    CausalDelivery(int p, ServerMiddleware midd, int[] net){
         this.port = p;
-        this.mfac = mfac;
+        this.midd = midd;
 
         // initialize local_vector_clock
         for (int value : net)
@@ -51,7 +51,7 @@ class CausalDelivery {
         this.local_vector_clock.replace(msg.port, (int) msg.sender_vector_clock.get(msg.port));
 
         // delivers to facade class
-        this.mfac.addMessage(msg);
+        this.midd.addMessage(msg);
 
         // Makes the routine N times until the state get consistent
         // Could exist messages on the end of the queue that unlock messages on the first places
@@ -65,7 +65,7 @@ class CausalDelivery {
      * @param msg Message that will be passed
      * */
     synchronized void receiveClientMessage(Message msg){
-        this.mfac.addMessage(msg);
+        this.midd.addMessage(msg);
     }
 
     /**
@@ -106,7 +106,7 @@ class CausalDelivery {
                 // When passes the Causal tests, change the clock
                 this.local_vector_clock.replace(msg.port, (int) msg.sender_vector_clock.get(msg.port));
                 // delivers to facade class
-                this.mfac.addMessage(msg);
+                this.midd.addMessage(msg);
                 // removes from queue
                 this.waiting_queue.remove(i);
                 return true;
