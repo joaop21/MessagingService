@@ -1,7 +1,5 @@
 package Server;
 
-import Middleware.MiddlewareFacade;
-
 public class ServerApplication extends Thread{
     private OperationsHandler opshandler;
 
