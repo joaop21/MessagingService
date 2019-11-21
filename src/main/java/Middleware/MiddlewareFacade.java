@@ -39,12 +39,12 @@ public class MiddlewareFacade {
      *
      * @return Object Object that was exchanged in messages.
      * */
-    /*public synchronized CompletableFuture<Object> getMessage() throws InterruptedException {
+    public synchronized CompletableFuture<Object> getMessage() throws InterruptedException {
         while(this.ordered_messages.size() == 0)
             wait();
 
         return CompletableFuture.completedFuture(this.ordered_messages.poll().getObject());
-    }*/
+    }
 
     /**
      * Method that send message to other servers
@@ -60,7 +60,7 @@ public class MiddlewareFacade {
      *
      * @param o Object inside the message
      * */
-    /*public void sendClientMessage(Object o){
-        this.cd.sendClientMessage(o, this.server_port);
-    }*/
+    public void sendClientMessage(Object o){
+        //this.cd.sendClientMessage(o, this.server_port);
+    }
 }

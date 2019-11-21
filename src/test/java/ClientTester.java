@@ -1,18 +1,12 @@
-package Server;
-
 import Middleware.MiddlewareFacade;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-/**
- * This class is for testing the current code.
- * In the future it will be deleted.
- * */
-public class MainTester extends Thread{
+public class ClientTester extends Thread {
     private static MiddlewareFacade mfac;
 
-    public MainTester(MiddlewareFacade mfa){
+    public ClientTester(MiddlewareFacade mfa){
         mfac = mfa;
     }
 
@@ -34,19 +28,18 @@ public class MainTester extends Thread{
 
         mfac = new MiddlewareFacade(port);
 
-        new Thread(new MainTester(mfac)).start();
+        new Thread(new ClientTester(mfac)).start();
 
         BufferedReader sin = new BufferedReader(new InputStreamReader(System.in));
 
         try {
             String current;
             while ((current = sin.readLine()) != null) {
-                mfac.sendServerMessage(current);
+                //mfac.sendClientMessage(current);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }
