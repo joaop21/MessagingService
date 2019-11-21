@@ -58,13 +58,13 @@ class AsynchronousProcess extends Thread{
      * @param mid An instance of ServerMiddleware object.
      * @param net An array containing ints representing the ports that the servers are running.
      * */
-    AsynchronousProcess(int p, ClientMiddleware mid, Object[] net){
+    AsynchronousProcess(int p, ClientMiddleware mid, int[] net){
         this.port = p;
         this.cd = null;
         this.is_server = false;
         this.serv_midd = null;
         this.cli_midd = null;
-        this.network = Arrays.stream(net).mapToInt(o -> (int) o).toArray();
+        this.network = net;
 
         // Initializes Atomix messaging service
         this.mms = new NettyMessagingService("AsyncProcesses", Address.from(this.port), new MessagingConfig());
@@ -99,6 +99,12 @@ class AsynchronousProcess extends Thread{
             if(is_server)
                 this.serv_midd.addClientMessage(a.port(),serializer.decode(b));
         },e);
+
+        // handler for an event "ServerToClient"
+        this.mms.registerHandler("ServerToClient",(a,b) -> {
+            if(!is_server)
+                this.cli_midd.addMessage(serializer.decode(b));
+        },e);
     }
 
     /**
@@ -108,9 +114,10 @@ class AsynchronousProcess extends Thread{
      *
      * */
     void sendMessageToServers(Message msg){
-        for (int value : this.network)
-            if(value!=this.port)
-                this.mms.sendAsync(Address.from(value), "ServerToServer", this.serializer.encode(msg));
+        if(is_server)
+            for (int value : this.network)
+                if(value!=this.port)
+                    this.mms.sendAsync(Address.from(value), "ServerToServer", this.serializer.encode(msg));
     }
 
     /**
@@ -120,7 +127,8 @@ class AsynchronousProcess extends Thread{
      *
      * */
     void sendMessageToServer(int p, Message msg){
-        this.mms.sendAsync(Address.from(p), "ClientToServer", this.serializer.encode(msg));
+        if(!is_server)
+            this.mms.sendAsync(Address.from(p), "ClientToServer", this.serializer.encode(msg));
     }
 
     /**
@@ -131,6 +139,7 @@ class AsynchronousProcess extends Thread{
      *
      * */
     void sendMessageToClient(int client_port, Message msg){
-        this.mms.sendAsync(Address.from(client_port), "ToClient", this.serializer.encode(msg));
+        if(is_server)
+            this.mms.sendAsync(Address.from(client_port), "ServerToClient", this.serializer.encode(msg));
     }
 }

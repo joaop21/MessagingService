@@ -1,4 +1,5 @@
 import Middleware.ServerMiddleware;
+import Middleware.Tuple;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -11,16 +12,32 @@ import java.util.concurrent.CompletableFuture;
 public class MainTester extends Thread{
     private static ServerMiddleware serv_midd;
 
-    MainTester(ServerMiddleware midd){
+    private MainTester(ServerMiddleware midd){
         serv_midd = midd;
     }
 
-    static CompletableFuture<Void> receiveMessages() {
+    private CompletableFuture<Void> receiveMessagesServer() {
         try {
+            System.out.println("receiveMessagesServer()");
             serv_midd.getServerMessage()
                     .thenCompose((line) -> {
                         System.out.println(line);
-                        return receiveMessages();
+                        return receiveMessagesServer();
+                    });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+    private static CompletableFuture<Void> receiveMessagesClient() {
+        try {
+            System.out.println("receiveMessagesClient()");
+            serv_midd.getClientMessage()
+                    .thenCompose((line) -> {
+                        Tuple t = (Tuple)line;
+                        System.out.println(t.getFirst() +": "+ t.getSecond());
+                        return receiveMessagesClient();
                     });
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -30,7 +47,8 @@ public class MainTester extends Thread{
 
     @Override
     public void run() {
-        receiveMessages();
+        receiveMessagesServer();
+        receiveMessagesClient();
     }
 
     public static void main(String[] args) {
@@ -39,12 +57,15 @@ public class MainTester extends Thread{
         serv_midd = new ServerMiddleware(port);
         new Thread(new MainTester(serv_midd)).start();
 
+        Runnable task2 = () -> { receiveMessagesClient();};
+        new Thread(task2).start();
+
         BufferedReader sin = new BufferedReader(new InputStreamReader(System.in));
 
         try {
             String current;
             while ((current = sin.readLine()) != null) {
-                serv_midd.sendMessageToServers(current);
+                serv_midd.sendMessageToServer(current);
             }
 
         } catch (Exception e) {

@@ -22,7 +22,7 @@ public class ServerMiddleware implements Middleware{
     private final Condition no_client_messages = lock.newCondition();
 
     /**
-     * Parameterized constructor that initializes an instance of MiddlewareFacade.
+     * Parameterized constructor that initializes an instance of ServerMiddleware.
      *
      * @param p The port where the server will operate.
      * */
@@ -64,7 +64,6 @@ public class ServerMiddleware implements Middleware{
      *
      * @return Object Object that was exchanged in messages.
      * */
-    @Override
     public CompletableFuture<Tuple> getClientMessage() throws InterruptedException {
         this.lock.lock();
         try {
@@ -117,7 +116,7 @@ public class ServerMiddleware implements Middleware{
      * @param o Object inside the message
      * */
     @Override
-    public void sendMessageToServers(Object o){
+    public void sendMessageToServer(Object o){
         this.cd.sendMessageToServers(o);
     }
 
@@ -126,7 +125,6 @@ public class ServerMiddleware implements Middleware{
      *
      * @param o Object inside the message
      * */
-    @Override
     public void sendMessageToClient(int p, Object o){
         // send directly to asyncprocess
         this.asp.sendMessageToClient(p,new Message(p,o,null));
