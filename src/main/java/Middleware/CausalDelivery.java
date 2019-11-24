@@ -8,24 +8,25 @@ class CausalDelivery {
     private Map<Integer,Integer> local_vector_clock = new HashMap<>();
     private List<Message> waiting_queue = new LinkedList<>();
     private AsynchronousProcess asp;
-    private MiddlewareFacade mfac;
+    private ServerMiddleware midd;
 
     /**
      * Parameterized constructor that initializes an instance of CausalDelivery.
      *
      * @param p The port where the server will operate.
-     * @param mfac The Facade that need to be accessed from this class.
+     * @param midd The Facade that need to be accessed from this class.
      * */
-    CausalDelivery(int p, MiddlewareFacade mfac, int[] net){
+    CausalDelivery(int p, ServerMiddleware midd, int[] net){
         this.port = p;
-        this.mfac = mfac;
+        this.midd = midd;
 
         // initialize local_vector_clock
         for (int value : net)
             this.local_vector_clock.put(value, 0);
 
         // Starting AsynchronousProcess thread
-        this.asp = new AsynchronousProcess(this.port,this, this.local_vector_clock.keySet().toArray());
+        this.asp = new AsynchronousProcess(this.port, this.midd,this, this.local_vector_clock.keySet().toArray());
+        this.midd.setAsp(this.asp);
         new Thread(this.asp).start();
     }
 
@@ -51,7 +52,7 @@ class CausalDelivery {
         this.local_vector_clock.replace(msg.port, (int) msg.sender_vector_clock.get(msg.port));
 
         // delivers to facade class
-        this.mfac.addMessage(msg);
+        this.midd.addServerMessage(msg);
 
         // Makes the routine N times until the state get consistent
         // Could exist messages on the end of the queue that unlock messages on the first places
@@ -60,34 +61,14 @@ class CausalDelivery {
     }
 
     /**
-     * Method that is responsable for passing messages to MiddlewareFacade
-     *
-     * @param msg Message that will be passed
-     * */
-    synchronized void receiveClientMessage(Message msg){
-        this.mfac.addMessage(msg);
-    }
-
-    /**
      * Method that increments the event counter and sends the massage to other servers.
      *
      * @param obj Object to be passed to the other servers.
      * */
-    synchronized void sendServerMessage(Object obj){
+    synchronized void sendMessageToServers(Object obj){
         this.event_counter++;
         this.local_vector_clock.replace(this.port, this.event_counter);
-        Message msg = new Message(this.port, obj, this.local_vector_clock);
-        this.asp.sendServerMessage(msg);
-    }
-
-    /**
-     * Method that increments the event counter and sends the massage to other servers.
-     *
-     * @param obj Object to be passed to the other servers.
-     * */
-    synchronized void sendClientMessage(Object obj, int client_port){
-        Message msg = new Message(this.port, obj, null);
-        this.asp.sendClientMessage(msg, client_port);
+        this.asp.sendMessageToServers(new Message(this.port, obj, this.local_vector_clock));
     }
 
     /**
@@ -105,8 +86,8 @@ class CausalDelivery {
             if(firstCausalRule(msg) && secondCausalRule(msg)){
                 // When passes the Causal tests, change the clock
                 this.local_vector_clock.replace(msg.port, (int) msg.sender_vector_clock.get(msg.port));
-                // delivers to facade class
-                this.mfac.addMessage(msg);
+                // delivers to middleware class
+                this.midd.addServerMessage(msg);
                 // removes from queue
                 this.waiting_queue.remove(i);
                 return true;
