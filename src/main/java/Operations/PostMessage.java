@@ -1,20 +1,16 @@
 package Operations;
 
+import util.Post;
+
 public class PostMessage{
-    private String username;
-    private String password;
+    private Post post;
 
-    public PostMessage(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public PostMessage(Post p) {
+        this.post = p;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
+    public Post getPost() {
+        return this.post;
     }
     
 }

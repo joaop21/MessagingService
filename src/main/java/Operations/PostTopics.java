@@ -1,22 +1,24 @@
 package Operations;
 
-import Application.Topic;
+import util.Topic;
+
+import java.util.List;
 
 public class PostTopics {
     private String username;
-    private Topic topic;
+    private List<Topic> topics;
 
-    public PostTopics(String username, Topic topic) {
+    public PostTopics(String username, List<Topic> topic) {
         this.username = username;
-        this.topic = topic;
+        this.topics = topic;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public Topic getTopic() {
-        return topic;
+    public List<Topic> getTopics() {
+        return topics;
     }
 
 }

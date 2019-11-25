@@ -1,6 +1,6 @@
 package Operations;
 
-import Application.Topic;
+import util.Topic;
 
 public class NewTopics {
     private String username;

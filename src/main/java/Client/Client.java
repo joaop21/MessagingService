@@ -3,43 +3,43 @@ package Client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import util.*;
-import io.atomix.utils.serializer.Serializer;
-import io.atomix.utils.serializer.SerializerBuilder;
 
 public class Client {
 
-    static Serializer serializer = new SerializerBuilder().addType(Operation.class).build();
+    static FSDwitter app;
+    static BufferedReader sin;
 
-    public static void initializeChat(BufferedReader sin, int port, MiddlewareFacade midd) throws IOException {
+    private static void initializeChat() throws IOException {
         System.out.println("------ Welcome to MessagingService! ------\n\n");
         System.out.println("Select an option by typing its number:");
         System.out.println("1) Login");
         System.out.println("2) Register");
 
         String option = sin.readLine();
-        readOptionInitial(sin, option, midd);
+        readOptionInitial(option);
     }
 
-    public static void readOptionInitial(BufferedReader sin, String option, MiddlewareFacade midd) throws IOException {
+    private static void readOptionInitial(String option) throws IOException {
         switch (option) {
-        case "1":
-            showLogin(sin, midd);
-            break;
-        case "2":
-            System.out.print("Register chosen\n");
-            showRegister(sin, midd);
-            break;
-        default:
-            System.out.println("Invalid option. Please try again.");
-            String newOption = sin.readLine();
-            readOptionInitial(sin, newOption, midd);
-            break;
+            case "1":
+                showLogin();
+                break;
+            case "2":
+                System.out.print("Register chosen\n");
+                showRegister();
+                break;
+            default:
+                System.out.println("Invalid option. Please try again.");
+                break;
         }
+        String newOption = sin.readLine();
+        readOptionInitial(newOption);
     }
 
-    public static void showLogin(BufferedReader sin, MiddlewareFacade midd) throws IOException {
+    private static void showLogin() throws IOException {
         System.out.println("- Login:");
         System.out.print("Username: ");
         String username = sin.readLine();
@@ -47,14 +47,15 @@ public class Client {
         String password = sin.readLine();
         System.out.println("\nTrying to login...");
 
-        String[] args = { username, password };
-        Operation op = new Operation(OperationType.LOGIN, args);
-        midd.sendClientMessage(serializer.encode(op));
-
-        // wait for answer??
+        if(!app.is_auth(username,password)){
+            System.out.println("Wrong Credentials. Please try again.");
+            showLogin();
+        } else{
+            showMainMenu(username);
+        }
     }
 
-    private static void showRegister(BufferedReader sin, MiddlewareFacade midd) throws IOException {
+    private static void showRegister() throws IOException {
         System.out.print("- Register:\n");
         System.out.print("Username: ");
         String username = sin.readLine();
@@ -62,20 +63,78 @@ public class Client {
         String password = sin.readLine();
         System.out.println("\nTrying to register...");
 
-        String[] args = { username, password };
-        Operation op = new Operation(OperationType.REGISTER, args);
-        midd.sendClientMessage(serializer.encode(op));
+        System.out.println("Operation not implemented. Be patient.");
+    }
 
-        // wait for answer??
+    private static void showMainMenu(String username) throws IOException {
+        System.out.println("What to do?");
+        System.out.println("1) Make a New Post         2) Get 10 Most Recent Posts\n" +
+                           "3) Show Subscribed Topics  4) Change Subscribed Topics");
+
+        String option = sin.readLine();
+        switch (option) {
+            case "1":
+                showCreatePost(username);
+                break;
+            case "2":
+                System.out.println("The 10 Most Recent Post You Subscribed:");
+                List<Post> posts =  app.get_10_recent_posts(username);
+                for(Post p : posts)
+                    p.toString();
+                break;
+            case "3":
+                System.out.println("Subscribed Topics:");
+                List<Topic> ts = app.get_topics(username);
+                for(Topic t : ts)
+                    t.toString();
+                break;
+            case "4":
+                showChangeTopics(username);
+                break;
+            default:
+                System.out.println("Invalid option. Please try again.");
+                break;
+        }
+    }
+
+    private static void  showCreatePost(String username) throws IOException {
+        System.out.print("Message: ");
+        String text = sin.readLine();
+
+        // we have to display all topics an then..
+
+        System.out.print("Topics (separate by a coma): ");
+        String topics = sin.readLine();
+
+        // parse topics
+        // create a post
+        // send to stub
+        // app.make_post()
+    }
+
+    private static void showChangeTopics(String username) throws IOException {
+        // Display topics ans then ..
+
+        System.out.print("Topics (separate by a coma): ");
+        String topics = sin.readLine();
+
+        // parse topics
+        // create a post
+        // send to stub
+        // app.set_topics()
     }
 
     public static void main(String[] args) {
         int port = Integer.parseInt(args[0]);
-        MiddlewareFacade midd = new MiddlewareFacade(port);
-        BufferedReader sin = new BufferedReader(new InputStreamReader(System.in));
+
+        // initializes ClientProcess
+
+        app = new FSDwitterStub();
+
+        sin = new BufferedReader(new InputStreamReader(System.in));
 
         try {
-            initializeChat(sin, port, midd);
+            initializeChat();
         } catch (IOException e) {
             e.printStackTrace();
         }
