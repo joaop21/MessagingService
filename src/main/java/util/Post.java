@@ -1,4 +1,6 @@
-package Application;
+package util;
+
+import util.Topic;
 
 import java.util.List;
 
