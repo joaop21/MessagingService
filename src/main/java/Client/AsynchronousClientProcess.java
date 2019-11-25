@@ -90,7 +90,7 @@ public class AsynchronousClientProcess extends Thread{
      *
      * @return Response The next response to be treated.
      * */
-    Response getResponse(){
+    synchronized Response getResponse(){
         while(this.responses.size() == 0) {
             try {
                 wait();

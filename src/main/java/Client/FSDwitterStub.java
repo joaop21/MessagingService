@@ -3,8 +3,11 @@ package Client;
 import Operations.Post.PostLogin;
 import Operations.Post.PostMessage;
 import Operations.Post.PostTopics;
+import Operations.Reply.Response;
+import Operations.Reply.ResponseType;
 import Operations.Request.RequestMessages;
 import Operations.Request.RequestTopics;
+import Operations.Request.RequestType;
 import util.FSDwitter;
 import util.Post;
 import util.Topic;
@@ -12,18 +15,24 @@ import util.Topic;
 import java.util.List;
 
 public class FSDwitterStub implements FSDwitter {
+    private ClientMiddlewareAPI cma;
 
     FSDwitterStub(int port){
-
+        this.cma = new ClientMiddlewareAPI(port);
     }
 
     @Override
     public List<Post> get_10_recent_posts(String username) {
         RequestMessages rms = new RequestMessages(username);
 
-        // enviar para middleware
+        // sends to middleware
+        this.cma.sendRequest(RequestType.MESSAGES,rms);
 
-        // receber resposta
+        // receives from middleware
+        Response resp = this.cma.getResponse();
+        if(resp.getType() == ResponseType.MESSAGES){
+            return resp.getRms().getPosts();
+        }
 
         return null;
     }
@@ -32,9 +41,14 @@ public class FSDwitterStub implements FSDwitter {
     public List<Topic> get_topics(String username) {
         RequestTopics rts = new RequestTopics(username);
 
-        // enviar para middleware
+        // sends to middleware
+        this.cma.sendRequest(RequestType.TOPICS, rts);
 
-        // receber resposta
+        // receives from middleware
+        Response resp = this.cma.getResponse();
+        if(resp.getType() == ResponseType.TOPICS){
+            return resp.getRts().getTopics();
+        }
 
         return null;
     }
