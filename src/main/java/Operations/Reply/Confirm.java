@@ -1,9 +1,10 @@
-package Operations;
+package Operations.Reply;
 
-public class Confirm{
+public class Confirm {
     private boolean status;
 
     public Confirm(boolean status){
+        super();
         this.status = status;
     }
 
