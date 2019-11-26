@@ -1,4 +1,4 @@
-package Operations;
+package Operations.Post;
 
 public class PostLogin{
     private String username;

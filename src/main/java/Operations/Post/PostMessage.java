@@ -1,4 +1,4 @@
-package Operations;
+package Operations.Post;
 
 import util.Post;
 

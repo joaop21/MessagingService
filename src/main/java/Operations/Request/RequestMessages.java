@@ -1,4 +1,4 @@
-package Operations;
+package Operations.Request;
 
 public class RequestMessages{
     private String username;
