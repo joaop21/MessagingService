@@ -7,7 +7,7 @@ class CausalDelivery {
     private int event_counter = 0;
     private Map<Integer,Integer> local_vector_clock = new HashMap<>();
     private List<Message> waiting_queue = new LinkedList<>();
-    private AsynchronousProcess asp;
+    private AsynchronousServerProcess asp;
     private ServerMiddleware midd;
 
     /**
@@ -24,8 +24,8 @@ class CausalDelivery {
         for (int value : net)
             this.local_vector_clock.put(value, 0);
 
-        // Starting AsynchronousProcess thread
-        this.asp = new AsynchronousProcess(this.port, this.midd,this, this.local_vector_clock.keySet().toArray());
+        // Starting AsynchronousServerProcess thread
+        this.asp = new AsynchronousServerProcess(this.port, this, this.local_vector_clock.keySet().toArray());
         this.midd.setAsp(this.asp);
         new Thread(this.asp).start();
     }

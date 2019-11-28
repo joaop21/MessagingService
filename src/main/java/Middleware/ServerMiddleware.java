@@ -14,7 +14,7 @@ public class ServerMiddleware implements Middleware{
     private Queue<Tuple<Integer,Message>> messages_clients = new LinkedList<>();
 
     private CausalDelivery cd;
-    private AsynchronousProcess asp;
+    private AsynchronousServerProcess asp;
 
     /** Locking policies because there is 2 different conditions*/
     private final Lock lock = new ReentrantLock();
@@ -33,11 +33,11 @@ public class ServerMiddleware implements Middleware{
     }
 
     /**
-     * Setter to change AsynchronousProcess
+     * Setter to change AsynchronousServerProcess
      *
-     * @param aspn AsynchronousProcess class to be used
+     * @param aspn AsynchronousServerProcess class to be used
      * */
-    void setAsp(AsynchronousProcess aspn){
+    void setAsp(AsynchronousServerProcess aspn){
         this.asp = aspn;
     }
 
