@@ -51,21 +51,24 @@ class AsynchronousServerProcess extends Thread{
         // Thread pool for execution
         ExecutorService e = Executors.newFixedThreadPool(1);
 
-        /*
-        // handler for an event "ServerToServer"
-        this.mms.registerHandler("ServerToServer",(a,b) -> {
-                this.cd.receive(serializer.decode(b));
-        },e);
+        // handler for receiving requests
+        // they're only sent from clients
+        this.mms.registerHandler("Request", (a,b) ->{
+            // deliver to class which has maps
+        }, e);
 
-        // handler for an event "ClientToServer"
-        this.mms.registerHandler("ClientToServer",(a,b) -> {
-                this.serv_midd.addClientMessage(a.port(),serializer.decode(b));
-        },e);
+        // handler for receiving posts
+        // they're only sent from clients
+        this.mms.registerHandler("Post", (a,b) ->{
+            // test if is a login
+            // true -> send to app
+            // else -> send to app and other servers because state is beeing changed
+        }, e);
 
-        // handler for an event "ServerToClient"
-        this.mms.registerHandler("ServerToClient",(a,b) -> {
-                this.cli_midd.addMessage(serializer.decode(b));
-        },e);*/
+        // handler for receiving data from other servers
+        this.mms.registerHandler("DataSync", (a,b) ->{
+            // deliver to causalDelivery
+        }, e);
 
         this.mms.start().
                 thenRun(() -> {
@@ -75,13 +78,13 @@ class AsynchronousServerProcess extends Thread{
 
 
     /**
-     * Sends Message to a specific client.
+     * Sends a response to a specific client.
      *
      * @param client_port The port where the client is.
-     * @param msg The message to be sent.
+     * @param resp The message to be sent.
      *
      * */
-    void sendMessageToClient(int client_port, Message msg){
-            this.mms.sendAsync(Address.from(client_port), "ServerToClient", this.serializer.encode(msg));
+    void sendMessageToClient(int client_port, Response resp){
+            this.mms.sendAsync(Address.from(client_port), "Response", this.response_serializer.encode(resp));
     }
 }
