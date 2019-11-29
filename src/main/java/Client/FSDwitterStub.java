@@ -1,5 +1,6 @@
 package Client;
 
+import Middleware.ClientMiddlewareAPI;
 import Operations.Post.PostLogin;
 import Operations.Post.PostMessage;
 import Operations.Post.PostTopics;

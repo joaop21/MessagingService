@@ -1,11 +1,9 @@
-package Client;
+package Middleware;
 
 import Operations.Reply.Response;
 import Operations.Request.Request;
 import Operations.Request.RequestType;
 
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Random;
 
 public class ClientMiddlewareAPI {

@@ -53,7 +53,7 @@ class AsynchronousServerProcess extends Thread{
         this.message_serializer = new SerializerBuilder().addType(Message.class).build();
 
         this.cd = new CausalDelivery(p,net,this);
-        // start CausalDelivery Thread
+        new Thread(this.cd).start();
     }
 
     /**
