@@ -2,7 +2,6 @@ package Middleware;
 
 import Operations.Reply.Response;
 import Operations.Request.Request;
-import Operations.Request.RequestType;
 
 import java.util.Random;
 
@@ -37,12 +36,9 @@ public class ClientMiddlewareAPI {
     /**
      * Method that sends a Request to server.
      *
-     * @param type The request type to be sent.
-     * @param o Object that is some type of request.
+     * @param request Request to send.
      * */
-    public void sendRequest(RequestType type, Object o){
-        Request r = new Request(type,o);
-
-        this.ascp.sendRequest(r);
+    public void sendRequest(Request request){
+        this.ascp.sendRequest(request);
     }
 }

@@ -1,61 +1,29 @@
 package Operations.Reply;
 
 public class Response {
-    private ResponseType type;
-    private Confirm c;
-    private ResponseMessages rms;
-    private ResponseTopics rts;
+    private final ResponseType type;
+    private final Object obj;
 
-    public Response(ResponseType t, Object o){
-        this.type = t;
-        switch (this.type){
-            case MESSAGES:
-                this.rms = (ResponseMessages) o;
-                this.c = null;
-                this.rts = null;
-                break;
-            case TOPICS:
-                this.rts = (ResponseTopics) o;
-                this.rms = null;
-                this.c = null;
-                break;
-            case CONFIRM:
-                this.c = (Confirm) o;
-                this.rts = null;
-                this.rms = null;
-                break;
-        }
+    public Response(ResponseMessages rms){
+        this.type = ResponseType.MESSAGES;
+        this.obj = rms;
+    }
+
+    public Response(ResponseTopics rts){
+        this.type = ResponseType.TOPICS;
+        this.obj = rts;
+    }
+
+    public Response(Confirm c){
+        this.type = ResponseType.CONFIRM;
+        this.obj = c;
     }
 
     public ResponseType getType() {
         return type;
     }
 
-    public void setType(ResponseType type) {
-        this.type = type;
-    }
-
-    public Confirm getC() {
-        return c;
-    }
-
-    public void setC(Confirm c) {
-        this.c = c;
-    }
-
-    public ResponseMessages getRms() {
-        return rms;
-    }
-
-    public void setRms(ResponseMessages rms) {
-        this.rms = rms;
-    }
-
-    public ResponseTopics getRts() {
-        return rts;
-    }
-
-    public void setRts(ResponseTopics rts) {
-        this.rts = rts;
+    public Object getObj() {
+        return obj;
     }
 }

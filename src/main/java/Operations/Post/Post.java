@@ -1,8 +1,8 @@
 package Operations.Post;
 
 public class Post {
-    private PostType postType;
-    private Object post;
+    private final PostType postType;
+    private final Object post;
 
     public Post(PostLogin pl){
         this.postType = PostType.LOGIN;
@@ -23,15 +23,7 @@ public class Post {
         return postType;
     }
 
-    public void setPostType(PostType postType) {
-        this.postType = postType;
-    }
-
     public Object getPost() {
         return post;
-    }
-
-    public void setPost(Object post) {
-        this.post = post;
     }
 }
