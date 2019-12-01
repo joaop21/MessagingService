@@ -1,33 +1,42 @@
 package Middleware;
 
+import Operations.Operation;
+
 import java.util.*;
 
-class CausalDelivery {
+class CausalDelivery extends Thread{
     private int port;
     private int event_counter = 0;
     private Map<Integer,Integer> local_vector_clock = new HashMap<>();
-    private List<Message> waiting_queue = new LinkedList<>();
-    private AsynchronousProcess asp;
-    private ServerMiddleware midd;
+    private List<Message<Operation>> waiting_queue = new LinkedList<>();
+    private AsynchronousServerProcess assp;
 
     /**
      * Parameterized constructor that initializes an instance of CausalDelivery.
      *
      * @param p The port where the server will operate.
-     * @param midd The Facade that need to be accessed from this class.
      * */
-    CausalDelivery(int p, ServerMiddleware midd, int[] net){
+    CausalDelivery(int p, int[] net, AsynchronousServerProcess assp){
         this.port = p;
-        this.midd = midd;
 
         // initialize local_vector_clock
         for (int value : net)
             this.local_vector_clock.put(value, 0);
 
-        // Starting AsynchronousProcess thread
-        this.asp = new AsynchronousProcess(this.port, this.midd,this, this.local_vector_clock.keySet().toArray());
-        this.midd.setAsp(this.asp);
-        new Thread(this.asp).start();
+        // Starting AsynchronousServerProcess thread
+        this.assp = assp;
+    }
+
+    /**
+     * This method is the thread work while it's running.
+     * It's intended to keep causal delivery.
+     * */
+    @Override
+    public void run() {
+        while(true){
+            Message<Operation> msgop = this.assp.getDataToSync();
+            receive(msgop);
+        }
     }
 
     /**
@@ -36,7 +45,7 @@ class CausalDelivery {
      *
      * @param msg Message that contains info to analyse.
      * */
-    synchronized void receive(Message msg){
+    synchronized void receive(Message<Operation> msg){
 
         if (firstCausalRule(msg)) {
             if(!secondCausalRule(msg)) {
@@ -49,26 +58,15 @@ class CausalDelivery {
         }
 
         // When passes the Causal tests, change the clock
-        this.local_vector_clock.replace(msg.port, (int) msg.sender_vector_clock.get(msg.port));
+        this.local_vector_clock.replace(msg.port, msg.sender_vector_clock.get(msg.port));
 
-        // delivers to facade class
-        this.midd.addServerMessage(msg);
+        // adds object passed to the queue in AsynServerProcess
+        this.assp.addServerMessage(msg.getObject());
 
         // Makes the routine N times until the state get consistent
         // Could exist messages on the end of the queue that unlock messages on the first places
         // it's necessary run N time
         while(checkPendingMessages());
-    }
-
-    /**
-     * Method that increments the event counter and sends the massage to other servers.
-     *
-     * @param obj Object to be passed to the other servers.
-     * */
-    synchronized void sendMessageToServers(Object obj){
-        this.event_counter++;
-        this.local_vector_clock.replace(this.port, this.event_counter);
-        this.asp.sendMessageToServers(new Message(this.port, obj, this.local_vector_clock));
     }
 
     /**
@@ -81,13 +79,13 @@ class CausalDelivery {
     private boolean checkPendingMessages(){
         int tam = this.waiting_queue.size(); // calculated only once
         for(int i = 0 ; i < tam ; i++){
-            Message msg = this.waiting_queue.get(i);
+            Message<Operation> msg = this.waiting_queue.get(i);
 
             if(firstCausalRule(msg) && secondCausalRule(msg)){
                 // When passes the Causal tests, change the clock
-                this.local_vector_clock.replace(msg.port, (int) msg.sender_vector_clock.get(msg.port));
-                // delivers to middleware class
-                this.midd.addServerMessage(msg);
+                this.local_vector_clock.replace(msg.port, msg.sender_vector_clock.get(msg.port));
+                // adds object passed to the queue in AsynServerProcess
+                this.assp.addServerMessage(msg.getObject());
                 // removes from queue
                 this.waiting_queue.remove(i);
                 return true;
@@ -104,9 +102,9 @@ class CausalDelivery {
      *
      * @return boolean The boolean value represents the test result.
      * */
-    private boolean firstCausalRule(Message msg){
+    private boolean firstCausalRule(Message<Operation> msg){
         int local_value = this.local_vector_clock.get(msg.port);
-        int sender_value = (int) msg.sender_vector_clock.get(msg.port);
+        int sender_value = msg.sender_vector_clock.get(msg.port);
         return (sender_value - local_value) == 1;
     }
 
@@ -118,7 +116,7 @@ class CausalDelivery {
      *
      * @return boolean The boolean value represents the test result.
      * */
-    private boolean secondCausalRule(Message msg){
+    private boolean secondCausalRule(Message<Operation> msg){
         Set<Map.Entry<Integer,Integer>> k_values = msg.sender_vector_clock.entrySet();
 
         for (Map.Entry<Integer, Integer> entry : k_values) {
@@ -127,6 +125,17 @@ class CausalDelivery {
                 return false;
         }
         return true;
+    }
+
+    /**
+     * Method that increments the event counter and sends the massage to other servers.
+     *
+     * @param op Operation to be passed to the other servers.
+     * */
+    synchronized void sendMessageToServers(Operation op){
+        this.event_counter++;
+        this.local_vector_clock.replace(this.port, this.event_counter);
+        this.assp.sendMessageToServers(new Message<Operation>(this.port, op, this.local_vector_clock));
     }
 
 }

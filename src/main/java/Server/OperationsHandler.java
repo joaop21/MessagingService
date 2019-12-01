@@ -1,6 +1,6 @@
 package Server;
 
-import util.Operation;
+import Operations.Operation;
 
 import java.util.concurrent.CompletableFuture;
 
