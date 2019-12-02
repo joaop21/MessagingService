@@ -3,6 +3,8 @@ package Client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import Application.FSDwitter;
@@ -103,27 +105,67 @@ public class Client {
         System.out.print("Message: ");
         String text = sin.readLine();
 
-        // we have to display all topics an then..
+        System.out.println("1) NEWS       2) SPORTS");
+        System.out.println("3) CULTURE    4) PEOPLE");
 
-        System.out.print("Topics (separate by a coma): ");
-        String topics = sin.readLine();
+        System.out.print("Topics (separate by a space): ");
+        String topics_line = sin.readLine();
 
-        // parse topics
-        // create a post
-        // send to stub
-        // app.make_post()
+        List<String> topics_string = new ArrayList(Arrays.asList(topics_line.split(" ")));
+        List<Topic> topics = new ArrayList<>();
+        for(String value : topics_string) {
+            int topic_value = Integer.parseInt(value);
+            switch(topic_value){
+                case 1:
+                    topics.add(Topic.NEWS);
+                    break;
+                case 2:
+                    topics.add(Topic.SPORTS);
+                    break;
+                case 3:
+                    topics.add(Topic.CULTURE);
+                    break;
+                case 4:
+                    topics.add(Topic.PEOPLE);
+                    break;
+                default:
+                    System.out.println("Bad input for topics.\n");
+                    return;
+            }
+        }
+        app.make_post(new Post(username, System.currentTimeMillis(),text,topics));
     }
 
     private static void showChangeTopics(String username) throws IOException {
-        // Display topics ans then ..
+        System.out.println("1) NEWS       2) SPORTS");
+        System.out.println("3) CULTURE    4) PEOPLE");
 
-        System.out.print("Topics (separate by a coma): ");
-        String topics = sin.readLine();
+        System.out.print("Topics (separate by a space): ");
+        String topics_line = sin.readLine();
 
-        // parse topics
-        // create a post
-        // send to stub
-        // app.set_topics()
+        List<String> topics_string = new ArrayList(Arrays.asList(topics_line.split(" ")));
+        List<Topic> topics = new ArrayList<>();
+        for(String value : topics_string) {
+            int topic_value = Integer.parseInt(value);
+            switch (topic_value) {
+                case 1:
+                    topics.add(Topic.NEWS);
+                    break;
+                case 2:
+                    topics.add(Topic.SPORTS);
+                    break;
+                case 3:
+                    topics.add(Topic.CULTURE);
+                    break;
+                case 4:
+                    topics.add(Topic.PEOPLE);
+                    break;
+                default:
+                    System.out.println("Bad input for topics.\n");
+                    return;
+            }
+        }
+        app.set_topics(username,topics);
     }
 
     public static void main(String[] args) {
@@ -131,7 +173,7 @@ public class Client {
 
         // initializes ClientProcess
 
-        app = new FSDwitterStub();
+        app = new FSDwitterStub(port);
 
         sin = new BufferedReader(new InputStreamReader(System.in));
 

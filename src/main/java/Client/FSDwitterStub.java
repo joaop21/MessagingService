@@ -4,10 +4,7 @@ import Middleware.ClientMiddlewareAPI;
 import Operations.Post.PostLogin;
 import Operations.Post.PostMessage;
 import Operations.Post.PostTopics;
-import Operations.Reply.Response;
-import Operations.Reply.ResponseMessages;
-import Operations.Reply.ResponseTopics;
-import Operations.Reply.ResponseType;
+import Operations.Reply.*;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
 import Operations.Request.RequestTopics;
@@ -58,9 +55,15 @@ public class FSDwitterStub implements FSDwitter {
     public boolean make_post(Post p) {
         PostMessage pm = new PostMessage(p);
 
-        // enviar para middleware
+        // sends to middleware
+        this.cma.sendPost(new Operations.Post.Post(pm));
 
-        // receber resposta
+        // receives from middleware
+        Response resp = this.cma.getResponse();
+        if(resp.getType() == ResponseType.CONFIRM){
+            Confirm cnf = (Confirm) resp.getObj();
+            return cnf.getStatus();
+        }
 
         return false;
     }
@@ -69,9 +72,15 @@ public class FSDwitterStub implements FSDwitter {
     public boolean set_topics(String username, List<Topic> topics) {
         PostTopics pts = new PostTopics(username,topics);
 
-        // enviar para middleware
+        // sends to middleware
+        this.cma.sendPost(new Operations.Post.Post(pts));
 
-        // receber resposta
+        // receives from middleware
+        Response resp = this.cma.getResponse();
+        if(resp.getType() == ResponseType.CONFIRM){
+            Confirm cnf = (Confirm) resp.getObj();
+            return cnf.getStatus();
+        }
 
         return false;
     }
@@ -80,9 +89,15 @@ public class FSDwitterStub implements FSDwitter {
     public boolean is_auth(String username, String password) {
         PostLogin pl = new PostLogin(username, password);
 
-        // enviar para middleware
+        // sends to middleware
+        this.cma.sendPost(new Operations.Post.Post(pl));
 
-        // receber resposta
+        // receives from middleware
+        Response resp = this.cma.getResponse();
+        if(resp.getType() == ResponseType.CONFIRM){
+            Confirm cnf = (Confirm) resp.getObj();
+            return cnf.getStatus();
+        }
 
         return false;
     }
