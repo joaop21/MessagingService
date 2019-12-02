@@ -1,5 +1,6 @@
 package Middleware;
 
+import Operations.Post.Post;
 import Operations.Reply.Response;
 import Operations.Request.Request;
 
@@ -40,5 +41,14 @@ public class ClientMiddlewareAPI {
      * */
     public void sendRequest(Request request){
         this.ascp.sendRequest(request);
+    }
+
+    /**
+     * Method that sends a post to server.
+     *
+     * @param post Post Operation.
+     * */
+    public void sendPost(Post post){
+        this.ascp.sendRequest(post);
     }
 }

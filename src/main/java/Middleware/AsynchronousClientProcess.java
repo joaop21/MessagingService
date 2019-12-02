@@ -1,5 +1,6 @@
 package Middleware;
 
+import Operations.Post.*;
 import Operations.Reply.*;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
@@ -24,6 +25,7 @@ public class AsynchronousClientProcess extends Thread{
     private ManagedMessagingService mms;
     private Serializer response_serializer;
     private Serializer request_serializer;
+    private Serializer post_serializer;
 
     /** Responses from servers **/
     private Queue<Response> responses = new LinkedList<>();
@@ -48,6 +50,11 @@ public class AsynchronousClientProcess extends Thread{
         // Initializes a Serializer capable of encode and decode Requests
         this.request_serializer = new SerializerBuilder()
                 .withTypes(Request.class, RequestMessages.class, RequestTopics.class, RequestType.class)
+                .build();
+
+        // Initializes a Serializer capable of encode and decode Posts
+        this.post_serializer = new SerializerBuilder()
+                .withTypes(Post.class, PostMessage.class, PostTopics.class, PostLogin.class, PostType.class)
                 .build();
     }
 
@@ -76,6 +83,15 @@ public class AsynchronousClientProcess extends Thread{
      * */
     void sendRequest(Request r){
         this.mms.sendAsync(this.server,"Request",this.request_serializer.encode(r));
+    }
+
+    /**
+     * Method that sends a Post to server.
+     *
+     * @param p The Post to be sent.
+     * */
+    void sendRequest(Post p){
+        this.mms.sendAsync(this.server,"Post",this.post_serializer.encode(p));
     }
 
     /**
