@@ -1,7 +1,6 @@
-package util;
+package Application;
 
 import java.util.List;
-import java.util.Map;
 
 public interface FSDwitter {
     List<Post> get_10_recent_posts(String username);

@@ -1,6 +1,6 @@
 package Operations.Post;
 
-import util.Post;
+import Application.Post;
 
 public class PostMessage{
     private Post post;

@@ -1,6 +1,6 @@
 package Operations.Post;
 
-import util.Topic;
+import Application.Topic;
 
 import java.util.List;
 

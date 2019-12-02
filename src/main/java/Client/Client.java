@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import util.*;
+import Application.FSDwitter;
+import Application.Post;
+import Application.Topic;
 
 public class Client {
 

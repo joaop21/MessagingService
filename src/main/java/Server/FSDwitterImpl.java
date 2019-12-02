@@ -1,8 +1,9 @@
-package Application;
+package Server;
 
-import util.FSDwitter;
-import util.Post;
-import util.Topic;
+import Application.FSDwitter;
+import Application.Post;
+import Application.Topic;
+import Application.User;
 
 import java.util.*;
 

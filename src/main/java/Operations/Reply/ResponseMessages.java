@@ -1,7 +1,7 @@
 package Operations.Reply;
 
 import java.util.List;
-import util.Post;
+import Application.Post;
 
 
 public class ResponseMessages{

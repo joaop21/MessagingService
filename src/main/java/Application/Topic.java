@@ -1,4 +1,4 @@
-package util;
+package Application;
 
 public enum Topic {
     NEWS(1), SPORTS(2), CULTURE(3), PEOPLE(4);

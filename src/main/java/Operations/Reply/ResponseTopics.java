@@ -1,7 +1,7 @@
 package Operations.Reply;
 
 import java.util.List;
-import util.Topic;
+import Application.Topic;
 
 
 public class ResponseTopics{

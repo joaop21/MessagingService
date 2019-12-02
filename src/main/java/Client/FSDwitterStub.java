@@ -11,10 +11,9 @@ import Operations.Reply.ResponseType;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
 import Operations.Request.RequestTopics;
-import Operations.Request.RequestType;
-import util.FSDwitter;
-import util.Post;
-import util.Topic;
+import Application.FSDwitter;
+import Application.Post;
+import Application.Topic;
 
 import java.util.List;
 
