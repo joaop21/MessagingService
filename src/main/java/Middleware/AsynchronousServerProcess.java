@@ -3,8 +3,11 @@ package Middleware;
 import Operations.Operation;
 import Operations.Post.Post;
 import Operations.Post.PostType;
-import Operations.Reply.Response;
+import Operations.Reply.*;
 import Operations.Request.Request;
+import Operations.Request.RequestMessages;
+import Operations.Request.RequestTopics;
+import Operations.Request.RequestType;
 import io.atomix.cluster.messaging.ManagedMessagingService;
 import io.atomix.cluster.messaging.MessagingConfig;
 import io.atomix.cluster.messaging.impl.NettyMessagingService;
@@ -12,7 +15,8 @@ import io.atomix.utils.net.Address;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class AsynchronousServerProcess extends Thread{
     private int port;
@@ -47,8 +51,12 @@ class AsynchronousServerProcess extends Thread{
         this.mms = new NettyMessagingService("AsyncServerProcess", Address.from(this.port), new MessagingConfig());
 
         // Initializes Serializers capable of encode and decode Objects
-        this.response_serializer = new SerializerBuilder().addType(Response.class).build();
-        this.request_serializer = new SerializerBuilder().addType(Request.class).build();
+        this.response_serializer = new SerializerBuilder()
+                .withTypes(Response.class, ResponseMessages.class, ResponseTopics.class, Confirm.class, ResponseType.class)
+                .build();
+        this.request_serializer = new SerializerBuilder()
+                .withTypes(Request.class, RequestMessages.class, RequestTopics.class, RequestType.class)
+                .build();
         this.post_serializer = new SerializerBuilder().addType(Post.class).build();
         this.message_serializer = new SerializerBuilder().addType(Message.class).build();
 
@@ -67,11 +75,13 @@ class AsynchronousServerProcess extends Thread{
 
         // handler for receiving requests, they're only sent from clients
         this.mms.registerHandler("Request", (a,b) ->{
+            System.out.println("["+this.port+"]: Received REQUEST from client " + a.port());
             addClientMessage(a.port(), new Operation((Request) this.request_serializer.decode(b)));
         }, e);
 
         // handler for receiving posts, they're only sent from clients
         this.mms.registerHandler("Post", (a,b) ->{
+            System.out.println("["+this.port+"]: Received POST from client " + a.port());
             Post p = this.post_serializer.decode(b);
 
             // if is not a login than it changes data, so we have to sync servers
@@ -83,6 +93,7 @@ class AsynchronousServerProcess extends Thread{
 
         // handler for receiving data from other servers
         this.mms.registerHandler("DataToSync", (a,b) ->{
+            System.out.println("["+this.port+"]: Received DATA TO SYNC from server " + a.port());
             Message<Operation> msg = this.message_serializer.decode(b);
             this.data_to_sync.add(msg);
         }, e);

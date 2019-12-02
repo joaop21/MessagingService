@@ -5,7 +5,10 @@ import Operations.Post.PostLogin;
 import Operations.Post.PostMessage;
 import Operations.Post.PostTopics;
 import Operations.Reply.Response;
+import Operations.Reply.ResponseMessages;
+import Operations.Reply.ResponseTopics;
 import Operations.Reply.ResponseType;
+import Operations.Request.Request;
 import Operations.Request.RequestMessages;
 import Operations.Request.RequestTopics;
 import Operations.Request.RequestType;
@@ -24,15 +27,14 @@ public class FSDwitterStub implements FSDwitter {
 
     @Override
     public List<Post> get_10_recent_posts(String username) {
-        RequestMessages rms = new RequestMessages(username);
-
         // sends to middleware
-        this.cma.sendRequest(RequestType.MESSAGES,rms);
+        this.cma.sendRequest(new Request(new RequestMessages(username)));
 
         // receives from middleware
         Response resp = this.cma.getResponse();
         if(resp.getType() == ResponseType.MESSAGES){
-            return resp.getRms().getPosts();
+            ResponseMessages rms = (ResponseMessages) resp.getObj();
+            return rms.getPosts();
         }
 
         return null;
@@ -40,15 +42,14 @@ public class FSDwitterStub implements FSDwitter {
 
     @Override
     public List<Topic> get_topics(String username) {
-        RequestTopics rts = new RequestTopics(username);
-
         // sends to middleware
-        this.cma.sendRequest(RequestType.TOPICS, rts);
+        this.cma.sendRequest(new Request(new RequestTopics(username)));
 
         // receives from middleware
         Response resp = this.cma.getResponse();
         if(resp.getType() == ResponseType.TOPICS){
-            return resp.getRts().getTopics();
+            ResponseTopics rts = (ResponseTopics) resp.getObj();
+            return rts.getTopics();
         }
 
         return null;
