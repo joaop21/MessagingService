@@ -2,6 +2,9 @@ import Middleware.ServerMiddlewareAPI;
 import Middleware.Tuple;
 import Operations.Operation;
 import Operations.OperationType;
+import Operations.Post.Post;
+import Operations.Post.PostType;
+import Operations.Reply.Confirm;
 import Operations.Reply.Response;
 import Operations.Reply.ResponseMessages;
 import Operations.Reply.ResponseTopics;
@@ -49,6 +52,12 @@ class ClientsHandler extends Thread{
                         Response resp2 = new Response(new ResponseTopics(new LinkedList<>()));
                         this.api.sendMessageToClient(t.getFirst(),resp2);
                         break;
+                }
+            } else{
+                if(t.getSecond().getType() == OperationType.POST){
+                    Post p = (Post) t.getSecond().getOp();
+                    Response resp = new Response(new Confirm(true));
+                    this.api.sendMessageToClient(t.getFirst(),resp);
                 }
             }
         }

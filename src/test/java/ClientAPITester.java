@@ -1,12 +1,16 @@
+import Application.Post;
+import Application.Topic;
 import Middleware.ClientMiddlewareAPI;
-import Operations.Reply.Response;
-import Operations.Reply.ResponseMessages;
-import Operations.Reply.ResponseTopics;
-import Operations.Reply.ResponseType;
+import Operations.Post.PostLogin;
+import Operations.Post.PostMessage;
+import Operations.Post.PostTopics;
+import Operations.Reply.*;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
 import Operations.Request.RequestTopics;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class ClientAPITester extends Thread{
@@ -23,9 +27,14 @@ public class ClientAPITester extends Thread{
         ClientMiddlewareAPI api = new ClientMiddlewareAPI(port);
 
         String username = "user";
+        String pass = "pass";
+        String text = "Novo topico com algum texto";
+        List<Topic> topics = new ArrayList<>();
+        topics.add(Topic.SPORTS);
+        topics.add(Topic.NEWS);
 
         while(!terminated()) {
-            int op = rand.nextInt(2);
+            int op = rand.nextInt(5);
 
             long before = System.nanoTime();
 
@@ -42,6 +51,30 @@ public class ClientAPITester extends Thread{
                     Response resp2 = api.getResponse();
                     if(resp2.getType() == ResponseType.TOPICS){
                         ResponseTopics rts = (ResponseTopics) resp2.getObj();
+                    }
+                    break;
+                case 2:
+                    PostMessage pm = new PostMessage(new Post(username,System.currentTimeMillis(),text,topics));
+                    api.sendPost(new Operations.Post.Post(pm));
+                    Response resp3 = api.getResponse();
+                    if(resp3.getType() == ResponseType.CONFIRM){
+                        Confirm cnf = (Confirm) resp3.getObj();
+                    }
+                    break;
+                case 3:
+                    PostTopics pts = new PostTopics(username,topics);
+                    api.sendPost(new Operations.Post.Post(pts));
+                    Response resp4 = api.getResponse();
+                    if(resp4.getType() == ResponseType.CONFIRM){
+                        Confirm cnf = (Confirm) resp4.getObj();
+                    }
+                    break;
+                case 4:
+                    PostLogin pl = new PostLogin(username, pass);
+                    api.sendPost(new Operations.Post.Post(pl));
+                    Response resp = api.getResponse();
+                    if(resp.getType() == ResponseType.CONFIRM){
+                        Confirm cnf = (Confirm) resp.getObj();
                     }
                     break;
             }
@@ -80,7 +113,7 @@ public class ClientAPITester extends Thread{
     }
 
     public static void main(String[] args) throws Exception {
-        ClientAPITester[] list = new ClientAPITester[1];
+        ClientAPITester[] list = new ClientAPITester[16];
 
         // create instances of this object
         for(int i=0; i < list.length; i++)

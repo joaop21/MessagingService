@@ -1,5 +1,6 @@
 package Middleware;
 
+import Application.Topic;
 import Operations.Post.*;
 import Operations.Reply.*;
 import Operations.Request.Request;
@@ -54,7 +55,8 @@ public class AsynchronousClientProcess extends Thread{
 
         // Initializes a Serializer capable of encode and decode Posts
         this.post_serializer = new SerializerBuilder()
-                .withTypes(Post.class, PostMessage.class, PostTopics.class, PostLogin.class, PostType.class)
+                .withTypes(Post.class, PostMessage.class, PostTopics.class, PostLogin.class, PostType.class,
+                        Application.Post.class, Topic.class)
                 .build();
     }
 

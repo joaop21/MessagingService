@@ -1,8 +1,9 @@
 package Middleware;
 
+import Application.Topic;
 import Operations.Operation;
-import Operations.Post.Post;
-import Operations.Post.PostType;
+import Operations.OperationType;
+import Operations.Post.*;
 import Operations.Reply.*;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
@@ -57,8 +58,14 @@ class AsynchronousServerProcess extends Thread{
         this.request_serializer = new SerializerBuilder()
                 .withTypes(Request.class, RequestMessages.class, RequestTopics.class, RequestType.class)
                 .build();
-        this.post_serializer = new SerializerBuilder().addType(Post.class).build();
-        this.message_serializer = new SerializerBuilder().addType(Message.class).build();
+        this.post_serializer = new SerializerBuilder()
+                .withTypes(Post.class, PostMessage.class, PostTopics.class, PostLogin.class, PostType.class,
+                        Application.Post.class, Topic.class)
+                .build();
+        this.message_serializer = new SerializerBuilder()
+                .withTypes(Message.class, Operation.class, OperationType.class, Post.class, PostMessage.class,
+                        PostTopics.class, PostLogin.class, PostType.class, Application.Post.class, Topic.class)
+                .build();
 
         this.cd = new CausalDelivery(p,net,this);
         new Thread(this.cd).start();
