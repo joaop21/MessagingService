@@ -11,7 +11,7 @@ import java.util.LinkedList;
 
 public class ServerAPITester {
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws InterruptedException {
         int port = Integer.parseInt(args[0]);
 
         ServerMiddlewareAPI api = new ServerMiddlewareAPI(port);

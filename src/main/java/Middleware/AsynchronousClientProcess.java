@@ -1,7 +1,10 @@
 package Middleware;
 
-import Operations.Reply.Response;
+import Operations.Reply.*;
 import Operations.Request.Request;
+import Operations.Request.RequestMessages;
+import Operations.Request.RequestTopics;
+import Operations.Request.RequestType;
 import io.atomix.cluster.messaging.ManagedMessagingService;
 import io.atomix.cluster.messaging.MessagingConfig;
 import io.atomix.cluster.messaging.impl.NettyMessagingService;
@@ -39,12 +42,12 @@ public class AsynchronousClientProcess extends Thread{
 
         // Initializes a Serializer capable of encode and decode Responses
         this.response_serializer = new SerializerBuilder()
-                .addType(Response.class)
+                .withTypes(Response.class, ResponseMessages.class, ResponseTopics.class, Confirm.class, ResponseType.class)
                 .build();
 
         // Initializes a Serializer capable of encode and decode Requests
         this.request_serializer = new SerializerBuilder()
-                .addType(Request.class)
+                .withTypes(Request.class, RequestMessages.class, RequestTopics.class, RequestType.class)
                 .build();
     }
 
@@ -80,7 +83,7 @@ public class AsynchronousClientProcess extends Thread{
      *
      * @param r The response to be saved in the queue.
      * */
-    private void addResponse(Response r){
+    private synchronized void addResponse(Response r){
         this.responses.add(r);
         notify();
     }

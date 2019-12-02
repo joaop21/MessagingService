@@ -80,7 +80,7 @@ public class ClientAPITester extends Thread{
     }
 
     public static void main(String[] args) throws Exception {
-        ClientAPITester[] list = new ClientAPITester[8];
+        ClientAPITester[] list = new ClientAPITester[50];
 
         // create instances of this object
         for(int i=0; i < list.length; i++)
