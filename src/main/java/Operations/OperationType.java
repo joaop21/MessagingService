@@ -8,7 +8,6 @@ public enum OperationType {
     OperationType(int key) {
         this.key = key;
     }
-
     public int getKey(){
         return key;
     }
