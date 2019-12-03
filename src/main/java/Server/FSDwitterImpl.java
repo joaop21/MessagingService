@@ -9,9 +9,9 @@ import java.util.*;
 
 public class FSDwitterImpl implements FSDwitter {
     private Map<String, User> users;
-    private Map<Topic, List<Post>> posts;
+    private Map<Topic, Deque<Post>> posts;
 
-    public FSDwitterImpl(Map<String, User> users, Map<Topic, List<Post>> posts) {
+    public FSDwitterImpl(Map<String, User> users, Map<Topic, Deque<Post>> posts) {
         this.users = users;
         this.posts = posts;
     }
@@ -22,10 +22,10 @@ public class FSDwitterImpl implements FSDwitter {
         this.users.put("henrique", new User("henrique","henriquepass"));
 
         this.posts = new HashMap<>();
-        this.posts.put(Topic.NEWS, new LinkedList<>());
-        this.posts.put(Topic.SPORTS, new LinkedList<>());
-        this.posts.put(Topic.CULTURE, new LinkedList<>());
-        this.posts.put(Topic.PEOPLE, new LinkedList<>());
+        this.posts.put(Topic.NEWS, new ArrayDeque<>());
+        this.posts.put(Topic.SPORTS, new ArrayDeque<>());
+        this.posts.put(Topic.CULTURE, new ArrayDeque<>());
+        this.posts.put(Topic.PEOPLE, new ArrayDeque<>());
     }
 
     public Map<String, User> getUsers() {
@@ -36,36 +36,70 @@ public class FSDwitterImpl implements FSDwitter {
         this.users = users;
     }
 
-    public Map<Topic, List<Post>> getPosts() {
+    public Map<Topic, Deque<Post>> getPosts() {
         return posts;
     }
 
-    public void setPosts(Map<Topic, List<Post>> posts) {
+    public void setPosts(Map<Topic, Deque<Post>> posts) {
         this.posts = posts;
     }
 
 
     @Override
-    public List<Post> get_10_recent_posts(String user) {
-        return null;
+    public List<Post> get_10_recent_posts(String username) {
+        User user = users.get(username);
+        List<Post> subscribed_posts = new ArrayList<>();
+
+        for (Topic t : user.getTopics().keySet()){
+            long subscribed_date = user.getTopics().get(t);
+
+            for (Post post : this.posts.get(t)){
+                if (post.getDate() > subscribed_date){
+                    subscribed_posts.add(post);
+                }
+            }
+        }
+
+        Collections.sort(subscribed_posts, new Comparator<Post>(){
+            public int compare(Post p1, Post p2){
+                return Double.compare(p2.getDate(),p1.getDate());
+          }
+        });
+
+        return subscribed_posts.subList(0, 9);
     }
 
     @Override
     public List<Topic> get_topics(String username) {
-        return (this.users.containsKey(username) ? (List<Topic>) this.users.get(username).getTopics().keySet() : null);
+        return (this.users.containsKey(username) ? 
+            new ArrayList<>(this.users.get(username).getTopics().keySet()) 
+            : null
+        );
     }
 
     @Override
     public boolean make_post(Post p) {
-        for(Topic t : p.getTopics())
-            this.posts.get(t).add(p);
+        for(Topic t : p.getTopics()){
+            Deque<Post> posts = this.posts.get(t);
+            posts.addFirst(p);
+            if (posts.size() > 10)
+                posts.removeLast();
+        }
         return true;
     }
 
     @Override
-    public boolean set_topics(String username, Map<Topic, Long> topics) {
-        this.users.get(username).setTopics(topics);
-        return false;
+    public boolean set_topics(String username, List<Topic> topics) {
+        long subscription = new Date().getTime();
+        User user = this.users.get(username);
+        Map<Topic,Long> topicMap = user.getTopics();
+        for (Topic t : topics){
+            if (topicMap.containsKey(t)){
+                topicMap.replace(t, subscription);
+            }
+            else topicMap.put(t, subscription);
+        }
+        return true;
     }
 
     @Override
