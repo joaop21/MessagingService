@@ -1,6 +1,8 @@
 package Application;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class User {
@@ -34,12 +36,22 @@ public class User {
         this.password = password;
     }
 
-    public Map<Topic, Long> getTopics() {
+    public synchronized Map<Topic, Long> getTopics() {
         return topics;
     }
 
-    public void setTopics(Map<Topic, Long> topics) {
+    public synchronized void setTopics(Map<Topic, Long> topics) {
         this.topics = topics;
+    }
+
+    public synchronized  void setTopics(List<Topic> tps){
+        long subscription = new Date().getTime();
+        for (Topic t : tps){
+            if (this.topics.containsKey(t)){
+                this.topics.replace(t, subscription);
+            }
+            else this.topics.put(t, subscription);
+        }
     }
 
 }

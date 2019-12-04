@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Post {
     private String user;
-    private long date; // in Milis
+    private long date; // in Millis
     private String post;
     private List<Topic> topics;
 
