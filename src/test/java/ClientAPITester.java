@@ -26,8 +26,8 @@ public class ClientAPITester extends Thread{
         int port = rand.nextInt(65535-49152) + 49152;
         ClientMiddlewareAPI api = new ClientMiddlewareAPI(port);
 
-        String username = "user";
-        String pass = "pass";
+        String username = "joao";
+        String pass = "joaopass";
         String text = "Novo topico com algum texto";
         List<Topic> topics = new ArrayList<>();
         topics.add(Topic.SPORTS);
@@ -113,7 +113,7 @@ public class ClientAPITester extends Thread{
     }
 
     public static void main(String[] args) throws Exception {
-        ClientAPITester[] list = new ClientAPITester[16];
+        ClientAPITester[] list = new ClientAPITester[2];
 
         // create instances of this object
         for(int i=0; i < list.length; i++)

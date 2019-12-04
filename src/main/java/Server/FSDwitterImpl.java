@@ -49,6 +49,7 @@ public class FSDwitterImpl implements FSDwitter {
     public List<Post> get_10_recent_posts(String username) {
         User user = users.get(username);
         List<Post> subscribed_posts = new ArrayList<>();
+        int num_posts = 0;
 
         for (Topic t : user.getTopics().keySet()){
             long subscribed_date = user.getTopics().get(t);
@@ -56,6 +57,7 @@ public class FSDwitterImpl implements FSDwitter {
             for (Post post : this.posts.get(t)){
                 if (post.getDate() > subscribed_date){
                     subscribed_posts.add(post);
+                    num_posts++;
                 }
             }
         }
@@ -66,7 +68,8 @@ public class FSDwitterImpl implements FSDwitter {
           }
         });
 
-        return subscribed_posts.subList(0, 9);
+        if(num_posts>9) return new ArrayList<>(subscribed_posts.subList(0, 9));
+        else return new ArrayList<>(subscribed_posts.subList(0, num_posts));
     }
 
     @Override

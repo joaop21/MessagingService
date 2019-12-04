@@ -53,7 +53,8 @@ class AsynchronousServerProcess extends Thread{
 
         // Initializes Serializers capable of encode and decode Objects
         this.response_serializer = new SerializerBuilder()
-                .withTypes(Response.class, ResponseMessages.class, ResponseTopics.class, Confirm.class, ResponseType.class)
+                .withTypes(Response.class, ResponseMessages.class, ResponseTopics.class, Confirm.class, ResponseType.class,
+                        Application.Post.class, Topic.class)
                 .build();
         this.request_serializer = new SerializerBuilder()
                 .withTypes(Request.class, RequestMessages.class, RequestTopics.class, RequestType.class)
