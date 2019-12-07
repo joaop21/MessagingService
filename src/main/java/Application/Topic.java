@@ -1,7 +1,7 @@
 package Application;
 
 public enum Topic {
-    NEWS, SPORTS, CULTURE, PEOPLE;
+    NEWS, SPORTS, CULTURE, PEOPLE, ART, HEALTH, FITNESS, FASHION, TRAVEL, FOOD, MUSIC, DIY, LIFESTYLE;
 
     private static Topic[] list = Topic.values();
 
