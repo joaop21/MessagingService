@@ -7,6 +7,11 @@ public class BoundedQueue<T> {
     private int size;
     private Queue<T> queue;
 
+    /**
+     * Parameterized constructor to create an instance of this object.
+     *
+     * @param capacity Max Size of the queue.
+     * */
     BoundedQueue(int capacity){
         this.max = capacity;
         this.size = 0;
@@ -14,7 +19,8 @@ public class BoundedQueue<T> {
     }
 
     /**
-     *  Method that adds an object to the queue.
+     *  Method that adds an object to the queue and removes the oldest one in order to
+     *      maintain the initial capacity.
      *
      * @param obj Object to be inserted in the queue.
      * */
