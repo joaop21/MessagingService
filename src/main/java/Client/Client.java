@@ -37,10 +37,10 @@ public class Client {
                 break;
             default:
                 System.out.println("Invalid option. Please try again.");
+                String newOption = sin.readLine();
+                readOptionInitial(newOption);
                 break;
         }
-        String newOption = sin.readLine();
-        readOptionInitial(newOption);
     }
 
     private static void showLogin() throws IOException {
@@ -55,7 +55,7 @@ public class Client {
             System.out.println("Wrong Credentials. Please try again.");
             showLogin();
         } else{
-            showMainMenu(username);
+            showMainMenu(username, true);
         }
     }
 
@@ -70,10 +70,15 @@ public class Client {
         System.out.println("Operation not implemented. Be patient.");
     }
 
-    private static void showMainMenu(String username) throws IOException {
-        System.out.println("What to do?");
-        System.out.println("1) Make a New Post         2) Get 10 Most Recent Posts\n" +
-                           "3) Show Subscribed Topics  4) Change Subscribed Topics");
+    private static void showMainMenu(String username, boolean first_try) throws IOException {
+        if (first_try){
+            System.out.println("Welcome back "+username+"!");
+        }
+        else{
+            System.out.println("What do you want to do?");
+            System.out.println("1) Make a New Post         2) Get 10 Most Recent Posts\n" +
+                            "3) Show Subscribed Topics  4) Change Subscribed Topics");
+        }
 
         String option = sin.readLine();
         switch (option) {
@@ -81,91 +86,98 @@ public class Client {
                 showCreatePost(username);
                 break;
             case "2":
-                System.out.println("The 10 Most Recent Post You Subscribed:");
-                List<Post> posts =  app.get_10_recent_posts(username);
-                for(Post p : posts)
-                    p.toString();
+                show10MostRecentPosts(username);
                 break;
             case "3":
-                System.out.println("Subscribed Topics:");
-                List<Topic> ts = app.get_topics(username);
-                for(Topic t : ts)
-                    t.toString();
+                showSubscribedTopics(username);
                 break;
             case "4":
                 showChangeTopics(username);
                 break;
             default:
                 System.out.println("Invalid option. Please try again.");
+                option = sin.readLine();
+                showMainMenu(username,false);
                 break;
         }
     }
 
-    private static void  showCreatePost(String username) throws IOException {
+    private static void showCreatePost(String username) throws IOException {
         System.out.print("Message: ");
         String text = sin.readLine();
 
-        System.out.println("1) NEWS       2) SPORTS");
-        System.out.println("3) CULTURE    4) PEOPLE");
+        // print topics
+       int i = 1;
+       for (Topic t : Topic.getList()){
+           System.out.println(i+") "+t.toString());
+           i++;
+       }
 
-        System.out.print("Topics (separate by a space): ");
+        System.out.print("Topics (separated by a space): ");
         String topics_line = sin.readLine();
 
-        List<String> topics_string = new ArrayList(Arrays.asList(topics_line.split(" ")));
+        List<String> topics_string = new ArrayList<>(Arrays.asList(topics_line.split(" ")));
         List<Topic> topics = new ArrayList<>();
         for(String value : topics_string) {
             int topic_value = Integer.parseInt(value);
-            switch(topic_value){
-                case 1:
-                    topics.add(Topic.NEWS);
-                    break;
-                case 2:
-                    topics.add(Topic.SPORTS);
-                    break;
-                case 3:
-                    topics.add(Topic.CULTURE);
-                    break;
-                case 4:
-                    topics.add(Topic.PEOPLE);
-                    break;
-                default:
-                    System.out.println("Bad input for topics.\n");
-                    return;
+            if (topic_value < Topic.getSize() && topic_value > 0){
+               topics.add(Topic.getByKey(topic_value));
+            }
+            else {
+                System.out.println("Bad input for topics.\n");
+                return;
             }
         }
+
         app.make_post(new Post(username, System.currentTimeMillis(),text,topics));
+
+        showMainMenu(username, false);
+    }
+
+    private static void show10MostRecentPosts(String username) throws IOException {
+        System.out.println("The 10 most recent posts with the topics you subscribe:");
+        List<Post> posts =  app.get_10_recent_posts(username);
+        for(Post p : posts)
+            p.toString();
+
+        showMainMenu(username, false);
+    }
+
+    private static void showSubscribedTopics(String username) throws IOException {
+        System.out.println("Subscribed Topics:");
+        List<Topic> ts = app.get_topics(username);
+        for(Topic t : ts)
+            t.toString();
+
+        showMainMenu(username, false);
     }
 
     private static void showChangeTopics(String username) throws IOException {
-        System.out.println("1) NEWS       2) SPORTS");
-        System.out.println("3) CULTURE    4) PEOPLE");
+         // print topics
+       int i = 1;
+       for (Topic t : Topic.getList()){
+           System.out.println(i+") "+t.toString());
+           i++;
+       }
 
-        System.out.print("Topics (separate by a space): ");
+        System.out.print("Topics (separated by a space): ");
         String topics_line = sin.readLine();
 
-        List<String> topics_string = new ArrayList(Arrays.asList(topics_line.split(" ")));
+        List<String> topics_string = new ArrayList<>(Arrays.asList(topics_line.split(" ")));
         List<Topic> topics = new ArrayList<>();
         for(String value : topics_string) {
             int topic_value = Integer.parseInt(value);
-            switch (topic_value) {
-                case 1:
-                    topics.add(Topic.NEWS);
-                    break;
-                case 2:
-                    topics.add(Topic.SPORTS);
-                    break;
-                case 3:
-                    topics.add(Topic.CULTURE);
-                    break;
-                case 4:
-                    topics.add(Topic.PEOPLE);
-                    break;
-                default:
-                    System.out.println("Bad input for topics.\n");
-                    return;
+            if (topic_value < Topic.getSize() && topic_value > 0){
+               topics.add(Topic.getByKey(topic_value));
+            }
+            else {
+                System.out.println("Bad input for topics.\n");
+                return;
             }
         }
         app.set_topics(username,topics);
+
+        showMainMenu(username, false);
     }
 
     public static void main(String[] args) {
