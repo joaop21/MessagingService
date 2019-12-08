@@ -1,14 +1,19 @@
 package Application;
 
 public enum Topic {
-    NEWS(1), SPORTS(2), CULTURE(3), PEOPLE(4);
+    NEWS, SPORTS, CULTURE, PEOPLE, ART, HEALTH, FITNESS, FASHION, TRAVEL, FOOD, MUSIC, DIY, LIFESTYLE;
 
-    public int key;
-    Topic(int key) {
-        this.key = key;
+    private static Topic[] list = Topic.values();
+
+    public static Topic getByKey(int key) {
+        return list[key-1];
     }
 
-    public int getKey(){
-        return key;
+    public static Topic[] getList() {
+        return list;
+    }
+
+    public static int getSize() {
+        return list.length;
     }
 }
