@@ -16,6 +16,9 @@ public class FSDwitterSkeleton implements FSDwitter {
         this.smi = new ServerMiddlewareAPI(port);
         this.cmh = new ClientMessageHandler(this, smi);
         this.smh = new ServerMessageHandler(this, smi);
+
+        new Thread(this.cmh).start();
+        new Thread(this.smh).start();
     }
 
     @Override

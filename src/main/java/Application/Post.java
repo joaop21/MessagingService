@@ -47,7 +47,7 @@ public class Post {
     public void setTopics(List<Topic> topics) {
         this.topics = topics;
     }
-
+  
     public String toString(){
         StringBuilder post = new StringBuilder();
         post.append(user + " on " + (new Date(date)).toString() + ": \n");
