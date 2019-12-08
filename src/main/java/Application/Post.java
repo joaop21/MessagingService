@@ -1,5 +1,6 @@
 package Application;
 
+import java.util.Date;
 import java.util.List;
 
 public class Post {
@@ -45,5 +46,17 @@ public class Post {
 
     public void setTopics(List<Topic> topics) {
         this.topics = topics;
+    }
+  
+    public String toString(){
+        StringBuilder post = new StringBuilder();
+        post.append(user + " on " + (new Date(date)).toString() + ": \n");
+        post.append(post + "\n");
+        post.append("Topics: ");
+        for(Topic t : topics)
+            post.append('#'+t.toString()+" ");
+        post.append("\n------------------ // ------------------\n");
+
+        return post.toString();
     }
 }
