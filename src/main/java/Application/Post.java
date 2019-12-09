@@ -49,14 +49,14 @@ public class Post {
     }
   
     public String toString(){
-        StringBuilder post = new StringBuilder();
-        post.append(user + " on " + (new Date(date)).toString() + ": \n");
-        post.append(post + "\n");
-        post.append("Topics: ");
+        StringBuilder postString = new StringBuilder();
+        postString.append(user + " on " + (new Date(date)).toString() + ": \n");
+        postString.append(post + "\n");
+        postString.append("Topics: ");
         for(Topic t : topics)
-            post.append('#'+t.toString()+" ");
-        post.append("\n------------------ // ------------------\n");
+            postString.append('#'+t.toString()+" ");
+        postString.append("\n------------------ // ------------------\n");
 
-        return post.toString();
+        return postString.toString();
     }
 }
