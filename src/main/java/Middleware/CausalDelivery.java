@@ -1,6 +1,8 @@
 package Middleware;
 
 import Operations.Operation;
+import io.atomix.utils.serializer.Serializer;
+import io.atomix.utils.serializer.SerializerBuilder;
 
 import java.util.*;
 
@@ -10,6 +12,7 @@ class CausalDelivery extends Thread{
     private Map<Integer,Integer> local_vector_clock = new HashMap<>();
     private List<Message<Operation>> waiting_queue = new LinkedList<>();
     private AsynchronousServerProcess assp;
+    private Journal journal;
 
     /**
      * Parameterized constructor that initializes an instance of CausalDelivery.
@@ -25,6 +28,9 @@ class CausalDelivery extends Thread{
 
         // Starting AsynchronousServerProcess thread
         this.assp = assp;
+
+        // open journal
+        this.journal = new Journal(this.port+"_middleware", new SerializerBuilder().build());
     }
 
     /**
