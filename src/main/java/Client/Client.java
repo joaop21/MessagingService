@@ -74,11 +74,9 @@ public class Client {
         if (first_try){
             System.out.println("Welcome back "+username+"!");
         }
-        else{
-            System.out.println("What do you want to do?");
-            System.out.println("1) Make a New Post         2) Get 10 Most Recent Posts\n" +
-                            "3) Show Subscribed Topics  4) Change Subscribed Topics");
-        }
+        System.out.println("What do you want to do?");
+        System.out.println("1) Make a New Post         2) Get 10 Most Recent Posts\n" +
+                        "3) Show Subscribed Topics  4) Change Subscribed Topics");
 
         String option = sin.readLine();
         switch (option) {
@@ -138,7 +136,7 @@ public class Client {
         System.out.println("The 10 most recent posts with the topics you subscribe:");
         List<Post> posts =  app.get_10_recent_posts(username);
         for(Post p : posts)
-            p.toString();
+            System.out.println(p.toString());
 
         showMainMenu(username, false);
     }
@@ -147,7 +145,7 @@ public class Client {
         System.out.println("Subscribed Topics:");
         List<Topic> ts = app.get_topics(username);
         for(Topic t : ts)
-            t.toString();
+            System.out.println(t.toString());
 
         showMainMenu(username, false);
     }
