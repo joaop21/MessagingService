@@ -123,7 +123,7 @@ public class Client {
             }
             else {
                 System.out.println("Bad input for topics.\n");
-                return;
+                showMainMenu(username, false);
             }
         }
 
@@ -170,7 +170,7 @@ public class Client {
             }
             else {
                 System.out.println("Bad input for topics.\n");
-                return;
+                showMainMenu(username, false);
             }
         }
         app.set_topics(username,topics);
