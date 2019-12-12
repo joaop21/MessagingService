@@ -1,6 +1,9 @@
 package Middleware;
 
+import Application.Topic;
 import Operations.Operation;
+import Operations.OperationType;
+import Operations.Post.*;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
 
@@ -21,16 +24,26 @@ class CausalDelivery extends Thread{
      * */
     CausalDelivery(int p, int[] net, AsynchronousServerProcess assp){
         this.port = p;
-
-        // initialize local_vector_clock
-        for (int value : net)
-            this.local_vector_clock.put(value, 0);
-
-        // Starting AsynchronousServerProcess thread
         this.assp = assp;
 
         // open journal
-        this.journal = new Journal(this.port+"_middleware", new SerializerBuilder().build());
+        Serializer message_serializer = new SerializerBuilder()
+                .withTypes(Message.class, Operation.class, OperationType.class, Post.class, PostMessage.class,
+                        PostTopics.class, PostLogin.class, PostType.class, Application.Post.class, Topic.class)
+                .build();
+
+        this.journal = new Journal(this.port+"_middleware", message_serializer);
+        Message<Operation> msg = (Message<Operation>) this.journal.getLastObject();
+        if(msg == null){
+            // initialize local_vector_clock
+            for (int value : net)
+                this.local_vector_clock.put(value, 0);
+        } else{
+            System.out.println("["+this.port+"]: Recovering from crash "+this.port);
+            this.local_vector_clock = msg.sender_vector_clock;
+            this.assp.setCrash_recovery(true);
+            this.assp.sendCrashToServers(msg.sender_vector_clock);
+        }
     }
 
     /**
@@ -141,7 +154,20 @@ class CausalDelivery extends Thread{
     synchronized void sendMessageToServers(Operation op){
         this.event_counter++;
         this.local_vector_clock.replace(this.port, this.event_counter);
-        this.assp.sendMessageToServers(new Message<Operation>(this.port, op, this.local_vector_clock));
+        Message<Operation> msg = new Message<Operation>(this.port, op, this.local_vector_clock);
+        this.assp.sendMessageToServers(msg);
+        this.journal.writeObject(msg);
     }
+
+    /***/
+    void recoverLogMessages(Map<Integer,Integer> clock, int server_port){
+        List<Object> messages = this.journal.getIndexObject(clock.get(this.port), this.event_counter);
+        for(Object obj : messages){
+            this.assp.sendMessageToServer((Message<Operation>) obj, server_port);
+        }
+        this.assp.sendTerminatedCrashToServer(server_port);
+    }
+
+
 
 }

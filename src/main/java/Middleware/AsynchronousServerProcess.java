@@ -16,12 +16,15 @@ import io.atomix.utils.net.Address;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 class AsynchronousServerProcess extends Thread{
     private int port;
     private int[] network;
+    private boolean crash_recovery;
+    private int num_server_recovered;
 
     private ManagedMessagingService mms;
     private Serializer response_serializer;
@@ -47,9 +50,15 @@ class AsynchronousServerProcess extends Thread{
     AsynchronousServerProcess(int p, int[] net){
         this.port = p;
         this.network = net;
+        this.crash_recovery = false;
+        this.num_server_recovered = 0;
 
         // Initializes Atomix messaging service
         this.mms = new NettyMessagingService("AsyncServerProcess", Address.from(this.port), new MessagingConfig());
+        this.mms.start().
+                thenRun(() -> {
+                    System.out.println("["+this.port+"]: Messaging Service Started");
+                });
 
         // Initializes Serializers capable of encode and decode Objects
         this.response_serializer = new SerializerBuilder()
@@ -73,6 +82,16 @@ class AsynchronousServerProcess extends Thread{
     }
 
     /**
+     * Setter for variable crash_recovery.
+     *
+     * @param crash_recovery Boolean that tells if this server is recovering or not.
+     */
+    public void setCrash_recovery(boolean crash_recovery) {
+        this.crash_recovery = crash_recovery;
+        this.num_server_recovered = 0;
+    }
+
+    /**
      * This method is the thread work while it's running.
      * Registers the fundamental handlers for events.
      * */
@@ -89,14 +108,16 @@ class AsynchronousServerProcess extends Thread{
 
         // handler for receiving posts, they're only sent from clients
         this.mms.registerHandler("Post", (a,b) ->{
-            System.out.println("["+this.port+"]: Received POST from client " + a.port());
-            Post p = this.post_serializer.decode(b);
+            if(!this.crash_recovery) {
+                System.out.println("[" + this.port + "]: Received POST from client " + a.port());
+                Post p = this.post_serializer.decode(b);
 
-            // if is not a login than it changes data, so we have to sync servers
-            if(!(p.getPostType() == PostType.LOGIN))
-                this.cd.sendMessageToServers(new Operation(p));
+                // if is not a login than it changes data, so we have to sync servers
+                if (!(p.getPostType() == PostType.LOGIN))
+                    this.cd.sendMessageToServers(new Operation(p));
 
-            addClientMessage(a.port(), new Operation(p));
+                addClientMessage(a.port(), new Operation(p));
+            }
         }, e);
 
         // handler for receiving data from other servers
@@ -106,10 +127,24 @@ class AsynchronousServerProcess extends Thread{
             this.data_to_sync.add(msg);
         }, e);
 
-        this.mms.start().
-                thenRun(() -> {
-                    System.out.println("["+this.port+"]: Messaging Service Started");
-                });
+        // handler for receiving crashes from other servers
+        this.mms.registerHandler("Crash", (a,b) ->{
+            System.out.println("["+this.port+"]: Received CRASH CLOCK MAP from server " + a.port());
+            Serializer s = new SerializerBuilder().build();
+            Map<Integer,Integer> clock = s.decode(b);
+            // pass to causal delivery
+            ///
+            ///
+            ///
+        }, e);
+
+        // handler for receiving crashes from other servers
+        this.mms.registerHandler("FinishedRecovery", (a,b) ->{
+            this.num_server_recovered++;
+            // check if process has terminated
+            if(this.num_server_recovered == this.network.length)
+                setCrash_recovery(false);
+        }, e);
     }
 
     /**
@@ -122,6 +157,40 @@ class AsynchronousServerProcess extends Thread{
         for (int server_port : this.network)
             if(server_port!=this.port)
                 this.mms.sendAsync(Address.from(server_port), "DataToSync", this.message_serializer.encode(msg));
+    }
+
+    /**
+     * Sends Message to a specific server.
+     *
+     * @param msg The message to be sent.
+     * @param server_port Port of the server.
+     * */
+    void sendMessageToServer(Message<Operation> msg, int server_port){
+        this.mms.sendAsync(Address.from(server_port), "DataToSync", this.message_serializer.encode(msg));
+    }
+
+    /**
+     * Sends Message of crash to all adjacent servers.
+     *
+     * @param clock The last captured clock.
+     *
+     * */
+    void sendCrashToServers(Map<Integer,Integer> clock){
+        Serializer s = new SerializerBuilder().build();
+        for (int server_port : this.network)
+            if(server_port!=this.port)
+                this.mms.sendAsync(Address.from(server_port), "Crash", s.encode(clock));
+    }
+
+    /**
+     * Sends Message of terminated recovery from crash to crashed servers.
+     *
+     * @param server_port Port from the server thar crashed.
+     *
+     * */
+    void sendTerminatedCrashToServer(int server_port){
+        Serializer s = new SerializerBuilder().build();
+        this.mms.sendAsync(Address.from(server_port), "FinishedRecovery", s.encode("FinishedRecovery"));
     }
 
     /**

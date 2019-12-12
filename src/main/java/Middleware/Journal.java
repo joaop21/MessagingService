@@ -5,6 +5,8 @@ import io.atomix.storage.journal.SegmentedJournalReader;
 import io.atomix.storage.journal.SegmentedJournalWriter;
 import io.atomix.utils.serializer.Serializer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class Journal {
@@ -39,6 +41,33 @@ public class Journal {
     }
 
     /**
+     * Method that gets the object that resides on a certain index from the log.
+     *
+     * @param index Integer that indicates where to start collecting objects.
+     * @param maxindex Integer that indicates where to stop collecting objects.
+     *
+     * @return List<Object> Objects in the log.
+     * */
+    public List<Object> getIndexObject(int index, int maxindex){
+        if(this.writer != null){
+            this.writer.close();
+            this.writer = null;
+        }
+
+        List<Object> res = new ArrayList<>();
+
+        this.reader = j.openReader(index-1);
+        int iterator = maxindex - index;
+        while(this.reader.hasNext()) {
+            res.add(this.reader.next().entry());
+            iterator--;
+            if(iterator == 0)
+                break;
+        }
+        return res;
+    }
+
+    /**
      * Method that gets the last object from the log.
      *
      * @return Object Last object in the log.
@@ -70,7 +99,6 @@ public class Journal {
         }
 
         this.writer.append(obj);
-        writer.flush();
         CompletableFuture.supplyAsync(()->{
                 this.writer.flush();
                 return null;
