@@ -48,7 +48,7 @@ public class Journal {
      *
      * @return List<Object> Objects in the log.
      * */
-    public List<Object> getIndexObject(int index, int maxindex){
+    public synchronized List<Object> getIndexObject(int index, int maxindex){
         if(this.writer != null){
             this.writer.close();
             this.writer = null;
@@ -72,7 +72,7 @@ public class Journal {
      *
      * @return Object Last object in the log.
      * */
-    public Object getLastObject(){
+    public synchronized Object getLastObject(){
         if(this.writer != null){
             this.writer.close();
             this.writer = null;
@@ -91,7 +91,7 @@ public class Journal {
      *
      * @param obj Object to be written.
      * */
-    public void writeObject(Object obj){
+    public synchronized void writeObject(Object obj){
         if(this.reader != null){
             this.reader.close();
             this.reader = null;
