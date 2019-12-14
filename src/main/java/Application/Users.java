@@ -67,10 +67,9 @@ class User {
         long subscription = new Date().getTime();
 
         for (Topic t : topics){
-            if (this.subscribed_topics.containsKey(t)){
-                this.subscribed_topics.replace(t, subscription);
+            if (!this.subscribed_topics.containsKey(t)){
+                this.subscribed_topics.put(t, subscription);
             }
-            else this.subscribed_topics.put(t, subscription);
         }
     }
 
