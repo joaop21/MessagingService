@@ -1,6 +1,11 @@
 package Middleware;
 
+import Application.Topic;
 import Operations.Operation;
+import Operations.OperationType;
+import Operations.Post.*;
+import io.atomix.utils.serializer.Serializer;
+import io.atomix.utils.serializer.SerializerBuilder;
 
 import java.util.*;
 
@@ -16,15 +21,15 @@ class CausalDelivery extends Thread{
      *
      * @param p The port where the server will operate.
      * */
-    CausalDelivery(int p, int[] net, AsynchronousServerProcess assp){
+    CausalDelivery(int p, int[] net, AsynchronousServerProcess assp, Map<Integer,Integer> clock){
         this.port = p;
-
-        // initialize local_vector_clock
-        for (int value : net)
-            this.local_vector_clock.put(value, 0);
-
-        // Starting AsynchronousServerProcess thread
         this.assp = assp;
+
+        if(clock == null)
+            for (int value : net)
+                this.local_vector_clock.put(value, 0);
+        else this.local_vector_clock = clock;
+
     }
 
     /**
@@ -135,7 +140,17 @@ class CausalDelivery extends Thread{
     synchronized void sendMessageToServers(Operation op){
         this.event_counter++;
         this.local_vector_clock.replace(this.port, this.event_counter);
-        this.assp.sendMessageToServers(new Message<Operation>(this.port, op, this.local_vector_clock));
+        Message<Operation> msg = new Message<Operation>(this.port, op, this.local_vector_clock);
+        this.assp.sendMessageToServers(msg);
     }
 
+
+    /**
+     * Getter for event_counter variable.
+     *
+     * @return int Event Counter.
+     */
+    public synchronized int getEvent_counter() {
+        return this.event_counter;
+    }
 }
