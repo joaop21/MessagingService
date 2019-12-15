@@ -74,8 +74,8 @@ class User {
             // if the topics map already contains the topic it doesn't update the timestamp, the old one prevails
         }
         // remove topics that aren't part of the list
-        for (Topic t : topics){
-            if (!this.subscribed_topics.containsKey(t)){
+        for (Topic t : this.subscribed_topics.keySet()){
+            if (!topics.contains(t)){
                 this.subscribed_topics.remove(t);
             }
         }
