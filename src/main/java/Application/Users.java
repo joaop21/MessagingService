@@ -66,9 +66,17 @@ class User {
     public synchronized void setTopics(List<Topic> topics) {
         long subscription = new Date().getTime();
 
+        // add new topics
         for (Topic t : topics){
             if (!this.subscribed_topics.containsKey(t)){
                 this.subscribed_topics.put(t, subscription);
+            }
+            // if the topics map already contains the topic it doesn't update the timestamp, the old one prevails
+        }
+        // remove topics that aren't part of the list
+        for (Topic t : topics){
+            if (!this.subscribed_topics.containsKey(t)){
+                this.subscribed_topics.remove(t);
             }
         }
     }
