@@ -19,6 +19,7 @@ public class Posts {
 
     public boolean make_post(Post p) {
         for(Topic t : p.getTopics()){
+            p.setDate(System.nanoTime());
             if(!this.posts.containsKey(t))
                 this.addTopic(t);
 

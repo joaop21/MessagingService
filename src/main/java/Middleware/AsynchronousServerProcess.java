@@ -16,8 +16,7 @@ import io.atomix.utils.net.Address;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,6 +30,8 @@ class AsynchronousServerProcess extends Thread{
     private boolean crash_recovery;
     private int num_server_recovered;
     private Map<Integer,Integer> last_clock;
+    private Map<Integer,Integer> messages_to_recover;
+    private List<Message<Operation>> delayed_messages = new LinkedList<>();
 
     /* Information for message passing */
     private ManagedMessagingService mms;
@@ -42,6 +43,7 @@ class AsynchronousServerProcess extends Thread{
     /* Information for consistent views*/
     private CausalDelivery cd;
     private Journal journal;
+    private List<Message<Operation>> sent_messages;
 
     /* data struct that keeps FIFO order on receiving Operations from clients */
     private ConcurrentQueue<Tuple<Integer, Operation>> clients_messages = new ConcurrentQueue<>();
@@ -61,7 +63,7 @@ class AsynchronousServerProcess extends Thread{
         this.network = net;
 
         // Initializes Atomix messaging service
-        this.mms = new NettyMessagingService("AsyncServerProcess", Address.from(this.port), new MessagingConfig());
+        this.mms = new NettyMessagingService("AsyncProcess", Address.from(this.port), new MessagingConfig());
         this.mms.start().
                 thenRun(() -> System.out.println("["+this.port+"]: Messaging Service Started"));
 
@@ -82,15 +84,39 @@ class AsynchronousServerProcess extends Thread{
                         PostTopics.class, PostLogin.class, PostType.class, Application.Post.class, Topic.class)
                 .build();
 
+        this.sent_messages = new ArrayList<>();
         this.journal = new Journal(this.port+"_middleware", this.message_serializer);
-        Message<Operation> msg = (Message<Operation>) this.journal.getLastObject();
-        if(msg == null) {
-            // tests if exists anything on log
+
+        List<Object> msgs = this.journal.getObjectsLog();
+        if(msgs.size() == 0) {
+            // if log has nothing then it's the first time executing
             this.cd = new CausalDelivery(p, net, this, null);
             this.crash_recovery = false;
             this.last_clock = null;
+            this.messages_to_recover = null;
         } else{
-            this.last_clock = msg.sender_vector_clock;
+            // if log has something, then it's restarting
+            // the last message that is kept is one sent by us
+            // auxiliary list to keep messages received after a message sent by us, until another message sent by us is received
+            List<Message<Operation>> aux = new ArrayList<>();
+            for (Object o : msgs) {
+                Message<Operation> msg = (Message<Operation>) o;
+                aux.add(msg);
+                if (msg.port == this.port) {
+                    this.sent_messages.add(msg);
+                    for (Message<Operation> operationMessage : aux) {
+                        this.servers_messages.add(operationMessage.getObject());
+                    }
+                    aux = new ArrayList<>();
+                }
+            }
+            if(this.sent_messages.size() == 0){
+                this.last_clock = new HashMap<>();
+                for (int value : this.network)
+                    this.last_clock.put(value, 0);
+            } else this.last_clock = this.sent_messages.get(this.sent_messages.size()-1).sender_vector_clock;
+
+            this.messages_to_recover = new HashMap<>();
             this.cd = new CausalDelivery(p,net,this, this.last_clock);
             this.crash_recovery = true;
         }
@@ -143,13 +169,52 @@ class AsynchronousServerProcess extends Thread{
 
                 addClientMessage(a.port(), new Operation(p));
             }
+            // WE NEED TO RESPOND SOMETHING TO CLIENT CASE ITS IN RECOVERY
         }, e);
 
         // handler for receiving data from other servers
         this.mms.registerHandler("DataToSync", (a,b) ->{
             System.out.println("["+this.port+"]: Received DATA TO SYNC from server " + a.port());
             Message<Operation> msg = this.message_serializer.decode(b);
+
+            if(!this.crash_recovery) {
+                // if server is not on crash recovery
+                this.data_to_sync.add(msg);
+            } else{
+                // if server is on crash recovery
+                if(this.messages_to_recover.containsKey(a.port())){
+                    this.data_to_sync.add(msg);
+                } else{
+                    this.delayed_messages.add(msg);
+                }
+            }
+        }, e);
+
+        // handler for recovering data from other servers
+        this.mms.registerHandler("DataToRecover", (a,b) ->{
+            System.out.println("["+this.port+"]: Received DATA TO RECOVER from server " + a.port());
+            Message<Operation> msg = this.message_serializer.decode(b);
             this.data_to_sync.add(msg);
+        }, e);
+
+        // handler for recovering data from other servers
+        this.mms.registerHandler("MessagesToRecover", (a,b) ->{
+            System.out.println("["+this.port+"]: Received number of MESSAGES TO RECOVER from server " + a.port());
+            Serializer s = new SerializerBuilder().build();
+            int number = s.decode(b);
+
+            this.messages_to_recover.put(a.port(),number);
+
+            for(int i = 0 ; i < this.delayed_messages.size() ; i++){
+                Message<Operation> msg = this.delayed_messages.get(i);
+                if(msg.port == a.port() ){
+                    if(msg.sender_vector_clock.get(a.port()) > number) {
+                        this.data_to_sync.add(msg);
+                    }
+                    this.delayed_messages.remove(i);
+                }
+            }
+
         }, e);
 
         // handler for receiving crashes from other servers
@@ -167,7 +232,7 @@ class AsynchronousServerProcess extends Thread{
             System.out.println("["+this.port+"]: Received FinishedRecovery from server " + a.port());
             this.num_server_recovered++;
             // check if process has terminated
-            if(this.num_server_recovered == this.network.length)
+            if(this.num_server_recovered == (this.network.length-1))
                 setCrash_recovery(false);
         }, e);
     }
@@ -180,6 +245,7 @@ class AsynchronousServerProcess extends Thread{
      * */
     void sendMessageToServers(Message<Operation> msg){
         this.journal.writeObject(msg);
+        this.sent_messages.add(msg);
         for (int server_port : this.network)
             if(server_port!=this.port)
                 this.mms.sendAsync(Address.from(server_port), "DataToSync", this.message_serializer.encode(msg));
@@ -242,8 +308,9 @@ class AsynchronousServerProcess extends Thread{
      *
      * @param op Operation that will be added to the list.
      * */
-    void addServerMessage(Operation op){
-        this.servers_messages.add(op);
+    void addServerMessage(Message<Operation> op){
+        this.journal.writeObject(op);
+        this.servers_messages.add(op.getObject());
     }
 
     /**
@@ -256,17 +323,21 @@ class AsynchronousServerProcess extends Thread{
     }
 
     /**
-     * Method recover log messages and sends'em to the crashed server.
+     * Method recovers messages and sends'em to the crashed server.
      *
      * @param clock Vector Clock that has the last recorded clock.
      * @param server_port Port of the crashed server.
      * */
     private void recoverLogMessages(Map<Integer,Integer> clock, int server_port){
-        List<Object> messages = this.journal.getIndexObject(clock.get(this.port), this.cd.getEvent_counter());
-        for(Object obj : messages){
-            this.mms.sendAsync(Address.from(server_port), "DataToSync", this.message_serializer.encode(obj));
-        }
+        int begin = clock.get(this.port);
+        int end = this.sent_messages.size();
+
         Serializer s = new SerializerBuilder().build();
+        this.mms.sendAsync(Address.from(server_port), "MessagesToRecover", s.encode(end));
+
+        for(int i = begin ; i < end ; i++)
+            this.mms.sendAsync(Address.from(server_port), "DataToRecover", this.message_serializer.encode(this.sent_messages.get(i)));
+
         this.mms.sendAsync(Address.from(server_port), "FinishedRecovery", s.encode("FinishedRecovery"));
     }
 }

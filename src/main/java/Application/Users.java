@@ -64,7 +64,7 @@ class User {
     }
 
     public synchronized void setTopics(List<Topic> topics) {
-        long subscription = new Date().getTime();
+        long subscription = System.nanoTime();
 
         // add new topics
         for (Topic t : topics){

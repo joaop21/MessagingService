@@ -87,7 +87,26 @@ public class Journal {
     }
 
     /**
-     * Method thar writes an object to log.
+     * Method that gets the all objects from the log.
+     *
+     * @return List<Object></Object> List of objects from the log.
+     * */
+    public synchronized List<Object> getObjectsLog(){
+        if(this.writer != null){
+            this.writer.close();
+            this.writer = null;
+        }
+
+        this.reader = j.openReader(0);
+        List<Object> result = new ArrayList<>();
+        while(this.reader.hasNext()) {
+            result.add(this.reader.next().entry());
+        }
+        return result;
+    }
+
+    /**
+     * Method that writes an object to log.
      *
      * @param obj Object to be written.
      * */
@@ -95,15 +114,13 @@ public class Journal {
         if(this.reader != null){
             this.reader.close();
             this.reader = null;
-            this.writer = this.j.writer();
         }
+        this.writer = this.j.writer();
 
         this.writer.append(obj);
         CompletableFuture.supplyAsync(()->{
                 this.writer.flush();
                 return null;
-            }).thenRun(()->{
-                    this.writer.close();
-                });
+            });
     }
 }

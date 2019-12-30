@@ -25,10 +25,13 @@ class CausalDelivery extends Thread{
         this.port = p;
         this.assp = assp;
 
-        if(clock == null)
+        if(clock == null) {
             for (int value : net)
                 this.local_vector_clock.put(value, 0);
-        else this.local_vector_clock = clock;
+        } else{
+            this.local_vector_clock = clock;
+            this.event_counter = this.local_vector_clock.get(this.port);
+        }
 
     }
 
@@ -66,7 +69,7 @@ class CausalDelivery extends Thread{
         this.local_vector_clock.replace(msg.port, msg.sender_vector_clock.get(msg.port));
 
         // adds object passed to the queue in AsynServerProcess
-        this.assp.addServerMessage(msg.getObject());
+        this.assp.addServerMessage(msg);
 
         // Makes the routine N times until the state get consistent
         // Could exist messages on the end of the queue that unlock messages on the first places
@@ -90,7 +93,7 @@ class CausalDelivery extends Thread{
                 // When passes the Causal tests, change the clock
                 this.local_vector_clock.replace(msg.port, msg.sender_vector_clock.get(msg.port));
                 // adds object passed to the queue in AsynServerProcess
-                this.assp.addServerMessage(msg.getObject());
+                this.assp.addServerMessage(msg);
                 // removes from queue
                 this.waiting_queue.remove(i);
                 return true;
@@ -144,13 +147,4 @@ class CausalDelivery extends Thread{
         this.assp.sendMessageToServers(msg);
     }
 
-
-    /**
-     * Getter for event_counter variable.
-     *
-     * @return int Event Counter.
-     */
-    public synchronized int getEvent_counter() {
-        return this.event_counter;
-    }
 }
