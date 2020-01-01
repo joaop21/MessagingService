@@ -17,7 +17,7 @@ public class ClientAPITester extends Thread{
     private static boolean started, stopped;
     private static int n;
     private static long total;
-    private static final long time = 10;
+    private static final long time = 30;
 
     @Override
     public void run() {
@@ -28,7 +28,7 @@ public class ClientAPITester extends Thread{
 
         String username = "joao";
         String pass = "joaopass";
-        String text = "Novo topico com algum texto";
+        String text = "Novo topico com algum texto " + port;
         List<Topic> topics = new ArrayList<>();
         topics.add(Topic.SPORTS);
         topics.add(Topic.NEWS);
@@ -113,7 +113,7 @@ public class ClientAPITester extends Thread{
     }
 
     public static void main(String[] args) throws Exception {
-        ClientAPITester[] list = new ClientAPITester[2];
+        ClientAPITester[] list = new ClientAPITester[20];
 
         // create instances of this object
         for(int i=0; i < list.length; i++)
@@ -127,7 +127,7 @@ public class ClientAPITester extends Thread{
 
         startBench();
 
-        Thread.sleep(time*5000);  // measures
+        Thread.sleep(time*1000);  // measures
 
         stopBench();
 

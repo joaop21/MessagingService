@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * This class is intended to represent the messages exchanged between servers.
  * */
-class Message<T> {
+public class Message<T> {
     /** Sender port */
     int port;
     /** Represents any object which is intended to be exchanged among servers */

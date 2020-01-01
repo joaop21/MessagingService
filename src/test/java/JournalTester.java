@@ -1,12 +1,19 @@
+import Application.Topic;
 import Middleware.Journal;
+import Middleware.Message;
+import Operations.Operation;
+import Operations.OperationType;
+import Operations.Post.*;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class JournalTester {
-    public static void main(String[] args) {
+
+    static void test1(){
         String fileName = "TesterLog";
 
         Map<Integer,Integer> vector_clock = new HashMap<>();
@@ -27,5 +34,32 @@ public class JournalTester {
 
         j.writeObject(vector_clock);
         System.out.println("Object written to log.");
+    }
+
+    static void test2(){
+        String fileName = "12345_middleware";
+        Serializer message_serializer = new SerializerBuilder()
+                .withTypes(Message.class, Operation.class, OperationType.class, Post.class, PostMessage.class,
+                        PostTopics.class, PostLogin.class, PostType.class, Application.Post.class, Topic.class)
+                .build();
+        Journal journal = new Journal(fileName, message_serializer);
+
+        List<Object> msgs = journal.getObjectsLog();
+
+        for (Object o : msgs){
+            Message<Operation> msg = (Message<Operation>) o;
+            switch(msg.getObject().getType()){
+                case POST:
+                    Post p = (Post) msg.getObject().getOp();
+                    if(p.getPostType() == PostType.MESSAGE) {
+                        PostMessage pm = (PostMessage) p.getPost();
+                        System.out.println(pm.getPost().toString());
+                    }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        test2();
     }
 }

@@ -41,7 +41,7 @@ public class AsynchronousClientProcess extends Thread{
         this.server = Address.from(server);
 
         // Initializes Atomix messaging service
-        this.mms = new NettyMessagingService("AsyncClientProcess", Address.from(port), new MessagingConfig());
+        this.mms = new NettyMessagingService("AsyncProcess", Address.from(port), new MessagingConfig());
 
         // Initializes a Serializer capable of encode and decode Responses
         this.response_serializer = new SerializerBuilder()
