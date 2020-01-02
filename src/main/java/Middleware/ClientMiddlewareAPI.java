@@ -1,12 +1,12 @@
 package Middleware;
 
+import java.io.IOException;
+import java.util.Random;
+
 import Configuration.Config;
 import Operations.Post.Post;
 import Operations.Reply.Response;
 import Operations.Request.Request;
-
-import java.io.IOException;
-import java.util.Random;
 
 public class ClientMiddlewareAPI {
     private AsynchronousClientProcess ascp;

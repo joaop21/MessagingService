@@ -1,11 +1,28 @@
 package Middleware;
 
-import Application.Topic;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import Application.Journal;
+import Application.Topic;
 import Operations.Operation;
 import Operations.OperationType;
-import Operations.Post.*;
-import Operations.Reply.*;
+import Operations.Post.Post;
+import Operations.Post.PostLogin;
+import Operations.Post.PostMessage;
+import Operations.Post.PostTopics;
+import Operations.Post.PostType;
+import Operations.Reply.Confirm;
+import Operations.Reply.Response;
+import Operations.Reply.ResponseMessages;
+import Operations.Reply.ResponseTopics;
+import Operations.Reply.ResponseType;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
 import Operations.Request.RequestTopics;
@@ -16,11 +33,6 @@ import io.atomix.cluster.messaging.impl.NettyMessagingService;
 import io.atomix.utils.net.Address;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
-
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 class AsynchronousServerProcess extends Thread{
     /* Information of this server */

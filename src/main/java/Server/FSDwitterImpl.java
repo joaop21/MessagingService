@@ -1,8 +1,13 @@
 package Server;
 
-import Application.*;
+import java.util.List;
+import java.util.Map;
 
-import java.util.*;
+import Application.FSDwitter;
+import Application.Post;
+import Application.Posts;
+import Application.Topic;
+import Application.Users;
 
 public class FSDwitterImpl implements FSDwitter {
     private Users users;

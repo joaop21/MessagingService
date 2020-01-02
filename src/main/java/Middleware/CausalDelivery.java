@@ -1,13 +1,12 @@
 package Middleware;
 
-import Application.Topic;
-import Operations.Operation;
-import Operations.OperationType;
-import Operations.Post.*;
-import io.atomix.utils.serializer.Serializer;
-import io.atomix.utils.serializer.SerializerBuilder;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import java.util.*;
+import Operations.Operation;
 
 class CausalDelivery extends Thread{
     private int port;

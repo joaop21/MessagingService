@@ -1,17 +1,21 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import Application.Post;
 import Application.Topic;
 import Middleware.ClientMiddlewareAPI;
 import Operations.Post.PostLogin;
 import Operations.Post.PostMessage;
 import Operations.Post.PostTopics;
-import Operations.Reply.*;
+import Operations.Reply.Confirm;
+import Operations.Reply.Response;
+import Operations.Reply.ResponseMessages;
+import Operations.Reply.ResponseTopics;
+import Operations.Reply.ResponseType;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
 import Operations.Request.RequestTopics;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class ClientAPITester extends Thread{
     private static boolean started, stopped;

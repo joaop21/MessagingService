@@ -1,10 +1,10 @@
 package Middleware;
 
+import java.io.IOException;
+
 import Configuration.Config;
 import Operations.Operation;
 import Operations.Reply.Response;
-
-import java.io.IOException;
 
 public class ServerMiddlewareAPI {
     private AsynchronousServerProcess assp;
