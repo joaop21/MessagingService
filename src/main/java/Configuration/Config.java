@@ -11,34 +11,27 @@ import java.nio.file.Path;
 
 public class Config {
     public static final String filePath = "./src/main/java/config.json";
-    private final int[] network;
+    private final int[] servers;
 
     public Config(int[] net) {
-        this.network = net;
+        this.servers = net;
     }
 
-    public static String getFilePath() {
-        return filePath;
-    }
+    public static String getFilePath() { return filePath; }
 
-    public int[] getNetwork(){return this.network;}
+    public int[] getNetwork(){return this.servers;}
 
     public String toString(){
-
         StringBuilder sb = new StringBuilder();
-        for(int i = 0 ; i < this.network.length ; i++)
-            sb.append("Server: ").append(i+1).append("\n");
+        for(int i = 0 ; i < this.servers.length ; i++)
+            sb.append("Server ").append(i+1).append(": ").append(this.servers[i]).append("\n");
         return sb.toString();
     }
 
     public static Config loadConfig() throws IOException {
-
         Gson gson = new GsonBuilder().create();
-
-        Path path = new File(filePath ).toPath();
-
+        Path path = new File(filePath).toPath();
         Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
-
         return gson.fromJson(reader,  Config.class);
     }
 
