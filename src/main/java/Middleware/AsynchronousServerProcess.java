@@ -71,6 +71,7 @@ class AsynchronousServerProcess extends Thread{
      * @param p The port where the server will operate.
      * @param net An array containing ints representing the ports that the servers are running.
      * */
+    @SuppressWarnings("unchecked")
     AsynchronousServerProcess(int p, int[] net){
         this.port = p;
         this.network = net;
