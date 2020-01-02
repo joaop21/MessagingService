@@ -43,6 +43,7 @@ public class FSDwitterStub implements FSDwitter {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<Topic> get_topics(String username) {
         // with request to server:
         

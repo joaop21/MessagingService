@@ -41,6 +41,7 @@ public class BoundedQueue<T> {
      *
      * @return List<T> List with the objects in the queue
      * */
+    @SuppressWarnings("unchecked")
     synchronized List<T> get(){
         return (List<T>) Arrays.asList(this.queue.toArray());
     }
