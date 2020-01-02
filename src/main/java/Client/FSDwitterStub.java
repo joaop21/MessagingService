@@ -8,7 +8,9 @@ import Operations.Reply.*;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
 import Operations.Request.RequestTopics;
+import io.atomix.utils.serializer.SerializerBuilder;
 import Application.FSDwitter;
+import Application.Journal;
 import Application.Post;
 import Application.Topic;
 
@@ -16,9 +18,11 @@ import java.util.List;
 
 public class FSDwitterStub implements FSDwitter {
     private ClientMiddlewareAPI cma;
+    private Journal journal;
 
     FSDwitterStub(int port){
         this.cma = new ClientMiddlewareAPI(port);
+        this.journal = null;
     }
 
     @Override
@@ -38,17 +42,20 @@ public class FSDwitterStub implements FSDwitter {
 
     @Override
     public List<Topic> get_topics(String username) {
-        // sends to middleware
-        this.cma.sendRequest(new Request(new RequestTopics(username)));
+        // with request to server:
+        
+        // // sends to middleware
+        // this.cma.sendRequest(new Request(new RequestTopics(username)));
 
-        // receives from middleware
-        Response resp = this.cma.getResponse();
-        if(resp.getType() == ResponseType.TOPICS){
-            ResponseTopics rts = (ResponseTopics) resp.getObj();
-            return rts.getTopics();
-        }
+        // // receives from middleware
+        // Response resp = this.cma.getResponse();
+        // if(resp.getType() == ResponseType.TOPICS){
+        //     ResponseTopics rts = (ResponseTopics) resp.getObj();
+        //     return rts.getTopics();
+        // }
 
-        return null;
+        // without request to server (using the journal):
+        return (List<Topic>) this.journal.getLastObject();
     }
 
     @Override
@@ -79,7 +86,10 @@ public class FSDwitterStub implements FSDwitter {
         Response resp = this.cma.getResponse();
         if(resp.getType() == ResponseType.CONFIRM){
             Confirm cnf = (Confirm) resp.getObj();
-            return cnf.getStatus();
+            boolean status = cnf.getStatus();
+            if (status)
+                journal.writeObject(topics);
+            return status;
         }
 
         return false;
@@ -96,7 +106,10 @@ public class FSDwitterStub implements FSDwitter {
         Response resp = this.cma.getResponse();
         if(resp.getType() == ResponseType.CONFIRM){
             Confirm cnf = (Confirm) resp.getObj();
-            return cnf.getStatus();
+            boolean status = cnf.getStatus();
+            if (status)
+                this.journal = new Journal(username, new SerializerBuilder().withTypes(Topic.class).build());
+            return status;
         }
 
         return false;
