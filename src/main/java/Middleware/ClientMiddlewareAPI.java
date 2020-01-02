@@ -1,9 +1,11 @@
 package Middleware;
 
+import Configuration.Config;
 import Operations.Post.Post;
 import Operations.Reply.Response;
 import Operations.Request.Request;
 
+import java.io.IOException;
 import java.util.Random;
 
 public class ClientMiddlewareAPI {
@@ -15,14 +17,19 @@ public class ClientMiddlewareAPI {
      * @param port The port where the client will operate.
      * */
     public ClientMiddlewareAPI(int port){
-        int[] network = new int[]{12345, 23456, 34567, 45678, 56789};
+        try {
+            Config conf = Config.loadConfig();
+            int[] network = conf.getNetwork();
 
-        // randomly chooses a server to contact
-        Random rand = new Random();
-        int server_to_contact = network[rand.nextInt(5)];
+            // randomly chooses a server to contact
+            Random rand = new Random();
+            int server_to_contact = network[rand.nextInt(5)];
 
-        this.ascp = new AsynchronousClientProcess(port, server_to_contact);
-        this.ascp.start();
+            this.ascp = new AsynchronousClientProcess(port, server_to_contact);
+            this.ascp.start();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     /**

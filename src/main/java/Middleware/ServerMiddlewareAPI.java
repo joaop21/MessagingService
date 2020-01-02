@@ -1,16 +1,24 @@
 package Middleware;
 
+import Configuration.Config;
 import Operations.Operation;
 import Operations.Reply.Response;
+
+import java.io.IOException;
 
 public class ServerMiddlewareAPI {
     private AsynchronousServerProcess assp;
 
     public ServerMiddlewareAPI(int port){
-        int[] network = new int[]{12345, 23456, 34567, 45678, 56789};
-        this.assp = new AsynchronousServerProcess(port,network);
+        try {
+            Config conf = Config.loadConfig();
 
-        new Thread(this.assp).start();
+            this.assp = new AsynchronousServerProcess(port,conf.getNetwork());
+
+            new Thread(this.assp).start();
+        } catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
     /**
