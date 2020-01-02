@@ -1,6 +1,6 @@
-import Configuration.Config;
-
 import java.io.IOException;
+
+import Configuration.Config;
 
 public class ConfigTester {
     public static void main(String[] args) throws IOException {

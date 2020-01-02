@@ -2,8 +2,10 @@ package Server;
 
 import java.util.List;
 
-import Application.*;
-import Middleware.*;
+import Application.FSDwitter;
+import Application.Post;
+import Application.Topic;
+import Middleware.ServerMiddlewareAPI;
 
 public class FSDwitterSkeleton implements FSDwitter {
     private FSDwitterImpl fsdwitter;

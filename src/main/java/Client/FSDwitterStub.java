@@ -1,20 +1,22 @@
 package Client;
 
-import Middleware.ClientMiddlewareAPI;
-import Operations.Post.PostLogin;
-import Operations.Post.PostMessage;
-import Operations.Post.PostTopics;
-import Operations.Reply.*;
-import Operations.Request.Request;
-import Operations.Request.RequestMessages;
-import Operations.Request.RequestTopics;
-import io.atomix.utils.serializer.SerializerBuilder;
+import java.util.List;
+
 import Application.FSDwitter;
 import Application.Journal;
 import Application.Post;
 import Application.Topic;
-
-import java.util.List;
+import Middleware.ClientMiddlewareAPI;
+import Operations.Post.PostLogin;
+import Operations.Post.PostMessage;
+import Operations.Post.PostTopics;
+import Operations.Reply.Confirm;
+import Operations.Reply.Response;
+import Operations.Reply.ResponseMessages;
+import Operations.Reply.ResponseType;
+import Operations.Request.Request;
+import Operations.Request.RequestMessages;
+import io.atomix.utils.serializer.SerializerBuilder;
 
 public class FSDwitterStub implements FSDwitter {
     private ClientMiddlewareAPI cma;
