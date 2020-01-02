@@ -1,6 +1,7 @@
 package Middleware;
 
 import Application.Topic;
+import Application.Journal;
 import Operations.Operation;
 import Operations.OperationType;
 import Operations.Post.*;
