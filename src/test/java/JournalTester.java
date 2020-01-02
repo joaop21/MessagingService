@@ -1,5 +1,5 @@
 import Application.Topic;
-import Middleware.Journal;
+import Application.Journal;
 import Middleware.Message;
 import Operations.Operation;
 import Operations.OperationType;

@@ -1,4 +1,4 @@
-package Middleware;
+package Application;
 
 import io.atomix.storage.journal.SegmentedJournal;
 import io.atomix.storage.journal.SegmentedJournalReader;
