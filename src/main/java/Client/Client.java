@@ -101,7 +101,7 @@ public class Client {
     }
 
     private static void showCreatePost(String username) throws IOException {
-        System.out.print("Message: ");
+        System.out.print("\nMessage: ");
         String text = sin.readLine();
 
         // print topics
@@ -133,7 +133,7 @@ public class Client {
     }
 
     private static void show10MostRecentPosts(String username) throws IOException {
-        System.out.println("The 10 most recent posts with the topics you subscribe:");
+        System.out.println("\nThe 10 most recent posts with the topics you subscribe:\n");
         List<Post> posts =  app.get_10_recent_posts(username);
         for(Post p : posts)
             System.out.println(p.toString());
@@ -142,16 +142,20 @@ public class Client {
     }
 
     private static void showSubscribedTopics(String username) throws IOException {
-        System.out.println("Subscribed Topics:");
+        System.out.println("\nSubscribed Topics:");
         List<Topic> ts = app.get_topics(username);
-        for(Topic t : ts)
-            System.out.println(t.toString());
+        if (ts == null || ts.isEmpty())
+            System.out.println("You have no subscribed topics!\n");
+        else
+            for(Topic t : ts)
+                System.out.println(t.toString());
 
         showMainMenu(username, false);
     }
 
     private static void showChangeTopics(String username) throws IOException {
          // print topics
+       System.out.println("\nAvailable topics: ");
        int i = 1;
        for (Topic t : Topic.getList()){
            System.out.println(i+") "+t.toString());
