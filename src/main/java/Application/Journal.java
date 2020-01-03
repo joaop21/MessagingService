@@ -123,4 +123,18 @@ public class Journal {
                 return null;
             });
     }
+
+    /**
+     * Method that checks if journal is empty
+     *
+     * */
+    public synchronized boolean isEmpty(){
+        if(this.writer != null){
+            this.writer.close();
+            this.writer = null;
+        }
+
+        this.reader = j.openReader(0);
+        return !this.reader.hasNext();
+    }
 }

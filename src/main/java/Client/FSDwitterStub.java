@@ -13,9 +13,11 @@ import Operations.Post.PostTopics;
 import Operations.Reply.Confirm;
 import Operations.Reply.Response;
 import Operations.Reply.ResponseMessages;
+import Operations.Reply.ResponseTopics;
 import Operations.Reply.ResponseType;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
+import Operations.Request.RequestTopics;
 import io.atomix.utils.serializer.SerializerBuilder;
 
 public class FSDwitterStub implements FSDwitter {
@@ -45,21 +47,26 @@ public class FSDwitterStub implements FSDwitter {
     @Override
     @SuppressWarnings("unchecked")
     public List<Topic> get_topics(String username) {
-        // with request to server:
-        
-        // // sends to middleware
-        // this.cma.sendRequest(new Request(new RequestTopics(username)));
+        // with request to server (journal is empty):
+        if (this.journal.isEmpty()){
+            // sends to middleware
+            this.cma.sendRequest(new Request(new RequestTopics(username)));
 
-        // // receives from middleware
-        // Response resp = this.cma.getResponse();
-        // if(resp.getType() == ResponseType.TOPICS){
-        //     ResponseTopics rts = (ResponseTopics) resp.getObj();
-        //     return rts.getTopics();
-        // }
+            // receives from middleware
+            Response resp = this.cma.getResponse();
+            if(resp.getType() == ResponseType.TOPICS){
+                ResponseTopics rts = (ResponseTopics) resp.getObj();
+                List<Topic> topics = rts.getTopics();
+                if (topics != null && !topics.isEmpty()) journal.writeObject(topics);
+                return topics;
+            }
+        }
+        else // without request to server (using the journal):
+            return (List<Topic>) this.journal.getLastObject();
 
-        // without request to server (using the journal):
-        return (List<Topic>) this.journal.getLastObject();
+        return null;
     }
+        
 
     @Override
     public boolean make_post(Post p) {
