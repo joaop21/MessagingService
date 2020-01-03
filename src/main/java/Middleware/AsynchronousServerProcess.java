@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import Application.Journal;
+import Journal.Journal;
 import Application.Topic;
 import Operations.Operation;
 import Operations.OperationType;

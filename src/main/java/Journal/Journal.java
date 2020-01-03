@@ -1,4 +1,4 @@
-package Application;
+package Journal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,8 +125,9 @@ public class Journal {
     }
 
     /**
-     * Method that checks if journal is empty
+     * Method that checks if journal is empty.
      *
+     * @return boolean That tells if the journal is empty.
      * */
     public synchronized boolean isEmpty(){
         if(this.writer != null){

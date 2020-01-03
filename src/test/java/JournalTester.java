@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import Application.Journal;
+import Journal.Journal;
 import Application.Topic;
 import Middleware.Message;
 import Operations.Operation;

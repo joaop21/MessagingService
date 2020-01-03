@@ -23,7 +23,7 @@ public class ClientMiddlewareAPI {
 
             // randomly chooses a server to contact
             Random rand = new Random();
-            int server_to_contact = network[rand.nextInt(5)];
+            int server_to_contact = network[rand.nextInt(network.length)];
 
             this.ascp = new AsynchronousClientProcess(port, server_to_contact);
             this.ascp.start();

@@ -3,7 +3,7 @@ package Client;
 import java.util.List;
 
 import Application.FSDwitter;
-import Application.Journal;
+import Journal.Journal;
 import Application.Post;
 import Application.Topic;
 import Middleware.ClientMiddlewareAPI;
