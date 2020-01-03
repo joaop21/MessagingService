@@ -1,10 +1,28 @@
 package Middleware;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import Application.Journal;
 import Application.Topic;
 import Operations.Operation;
 import Operations.OperationType;
-import Operations.Post.*;
-import Operations.Reply.*;
+import Operations.Post.Post;
+import Operations.Post.PostLogin;
+import Operations.Post.PostMessage;
+import Operations.Post.PostTopics;
+import Operations.Post.PostType;
+import Operations.Reply.Confirm;
+import Operations.Reply.Response;
+import Operations.Reply.ResponseMessages;
+import Operations.Reply.ResponseTopics;
+import Operations.Reply.ResponseType;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
 import Operations.Request.RequestTopics;
@@ -15,11 +33,6 @@ import io.atomix.cluster.messaging.impl.NettyMessagingService;
 import io.atomix.utils.net.Address;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
-
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 class AsynchronousServerProcess extends Thread{
     /* Information of this server */
@@ -58,6 +71,7 @@ class AsynchronousServerProcess extends Thread{
      * @param p The port where the server will operate.
      * @param net An array containing ints representing the ports that the servers are running.
      * */
+    @SuppressWarnings("unchecked")
     AsynchronousServerProcess(int p, int[] net){
         this.port = p;
         this.network = net;
@@ -198,23 +212,27 @@ class AsynchronousServerProcess extends Thread{
         }, e);
 
         // handler for recovering data from other servers
-        this.mms.registerHandler("MessagesToRecover", (a,b) ->{
-            System.out.println("["+this.port+"]: Received number of MESSAGES TO RECOVER from server " + a.port());
-            Serializer s = new SerializerBuilder().build();
-            int number = s.decode(b);
-
-            this.messages_to_recover.put(a.port(),number);
-
-            for(int i = 0 ; i < this.delayed_messages.size() ; i++){
-                Message<Operation> msg = this.delayed_messages.get(i);
-                if(msg.port == a.port() ){
-                    if(msg.sender_vector_clock.get(a.port()) > number) {
-                        this.data_to_sync.add(msg);
+        this.mms.registerHandler("MessagesToRecover", (a,b)->{
+            try{
+                System.out.println("["+this.port+"]: Received number of MESSAGES TO RECOVER from server " + a.port());
+                Serializer s = new SerializerBuilder().build();
+                int number = s.decode(b);
+    
+                this.messages_to_recover.put(a.port(),number);
+    
+                for(int i = 0 ; i < this.delayed_messages.size() ; i++){
+                    Message<Operation> msg = this.delayed_messages.get(i);
+                    if(msg.port == a.port() ){
+                        if(msg.sender_vector_clock.get(a.port()) > number) {
+                            this.data_to_sync.add(msg);
+                        }
+                        this.delayed_messages.remove(i);
                     }
-                    this.delayed_messages.remove(i);
                 }
             }
-
+            catch(Exception error){
+                error.printStackTrace();
+            }
         }, e);
 
         // handler for receiving crashes from other servers

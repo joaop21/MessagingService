@@ -1,6 +1,9 @@
 package Application;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 public class BoundedQueue<T> {
     private final int max;
@@ -38,6 +41,7 @@ public class BoundedQueue<T> {
      *
      * @return List<T> List with the objects in the queue
      * */
+    @SuppressWarnings("unchecked")
     synchronized List<T> get(){
         return (List<T>) Arrays.asList(this.queue.toArray());
     }

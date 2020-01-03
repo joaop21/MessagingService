@@ -1,16 +1,15 @@
+import java.util.LinkedList;
+
 import Middleware.ServerMiddlewareAPI;
 import Middleware.Tuple;
 import Operations.Operation;
 import Operations.OperationType;
 import Operations.Post.Post;
-import Operations.Post.PostType;
 import Operations.Reply.Confirm;
 import Operations.Reply.Response;
 import Operations.Reply.ResponseMessages;
 import Operations.Reply.ResponseTopics;
 import Operations.Request.Request;
-
-import java.util.LinkedList;
 
 public class ServerAPITester {
 

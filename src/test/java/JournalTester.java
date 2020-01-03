@@ -1,15 +1,19 @@
-import Application.Topic;
-import Middleware.Journal;
-import Middleware.Message;
-import Operations.Operation;
-import Operations.OperationType;
-import Operations.Post.*;
-import io.atomix.utils.serializer.Serializer;
-import io.atomix.utils.serializer.SerializerBuilder;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import Application.Journal;
+import Application.Topic;
+import Middleware.Message;
+import Operations.Operation;
+import Operations.OperationType;
+import Operations.Post.Post;
+import Operations.Post.PostLogin;
+import Operations.Post.PostMessage;
+import Operations.Post.PostTopics;
+import Operations.Post.PostType;
+import io.atomix.utils.serializer.Serializer;
+import io.atomix.utils.serializer.SerializerBuilder;
 
 public class JournalTester {
 

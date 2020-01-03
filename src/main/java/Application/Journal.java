@@ -1,13 +1,13 @@
-package Middleware;
+package Application;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import io.atomix.storage.journal.SegmentedJournal;
 import io.atomix.storage.journal.SegmentedJournalReader;
 import io.atomix.storage.journal.SegmentedJournalWriter;
 import io.atomix.utils.serializer.Serializer;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class Journal {
     private SegmentedJournal<Object> j;
@@ -122,5 +122,19 @@ public class Journal {
                 this.writer.flush();
                 return null;
             });
+    }
+
+    /**
+     * Method that checks if journal is empty
+     *
+     * */
+    public synchronized boolean isEmpty(){
+        if(this.writer != null){
+            this.writer.close();
+            this.writer = null;
+        }
+
+        this.reader = j.openReader(0);
+        return !this.reader.hasNext();
     }
 }

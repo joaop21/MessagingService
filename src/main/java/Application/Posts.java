@@ -1,6 +1,11 @@
 package Application;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Posts {
     private Map<Topic, BoundedQueue<Post>> posts;
@@ -36,12 +41,13 @@ public class Posts {
         for (Topic t : topics.keySet()){
             long subscribed_date = topics.get(t);
 
-            for (Post post : this.posts.get(t).get()){
-                if (post.getDate() > subscribed_date){
-                    subscribed_posts.add(post);
-                    num_posts++;
-                }
-            }
+            if (this.posts.get(t) != null)
+                for (Post post : this.posts.get(t).get()){
+                    if (post.getDate() > subscribed_date){
+                        subscribed_posts.add(post);
+                        num_posts++;
+                    }
+                }                
         }
 
         Collections.sort(subscribed_posts, new Comparator<Post>(){

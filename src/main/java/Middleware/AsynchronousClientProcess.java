@@ -1,8 +1,21 @@
 package Middleware;
 
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import Application.Topic;
-import Operations.Post.*;
-import Operations.Reply.*;
+import Operations.Post.Post;
+import Operations.Post.PostLogin;
+import Operations.Post.PostMessage;
+import Operations.Post.PostTopics;
+import Operations.Post.PostType;
+import Operations.Reply.Confirm;
+import Operations.Reply.Response;
+import Operations.Reply.ResponseMessages;
+import Operations.Reply.ResponseTopics;
+import Operations.Reply.ResponseType;
 import Operations.Request.Request;
 import Operations.Request.RequestMessages;
 import Operations.Request.RequestTopics;
@@ -13,11 +26,6 @@ import io.atomix.cluster.messaging.impl.NettyMessagingService;
 import io.atomix.utils.net.Address;
 import io.atomix.utils.serializer.Serializer;
 import io.atomix.utils.serializer.SerializerBuilder;
-
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class AsynchronousClientProcess extends Thread{
     /** Address from server to contact*/
