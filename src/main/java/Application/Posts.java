@@ -41,12 +41,15 @@ public class Posts {
         for (Topic t : topics.keySet()){
             long subscribed_date = topics.get(t);
 
-            for (Post post : this.posts.get(t).get()){
-                if (post.getDate() > subscribed_date){
-                    subscribed_posts.add(post);
-                    num_posts++;
+            if (this.posts.get(t) != null)
+                for (Post post : this.posts.get(t).get()){
+                    if (post.getDate() > subscribed_date){
+                        subscribed_posts.add(post);
+                        num_posts++;
+                    }
                 }
-            }
+            else
+                System.out.println("There are no posts for the topic "+t.name()+" yet! Do you want to be the first? :) \n");
         }
 
         Collections.sort(subscribed_posts, new Comparator<Post>(){

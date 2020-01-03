@@ -212,23 +212,27 @@ class AsynchronousServerProcess extends Thread{
         }, e);
 
         // handler for recovering data from other servers
-        this.mms.registerHandler("MessagesToRecover", (a,b) ->{
-            System.out.println("["+this.port+"]: Received number of MESSAGES TO RECOVER from server " + a.port());
-            Serializer s = new SerializerBuilder().build();
-            int number = s.decode(b);
-
-            this.messages_to_recover.put(a.port(),number);
-
-            for(int i = 0 ; i < this.delayed_messages.size() ; i++){
-                Message<Operation> msg = this.delayed_messages.get(i);
-                if(msg.port == a.port() ){
-                    if(msg.sender_vector_clock.get(a.port()) > number) {
-                        this.data_to_sync.add(msg);
+        this.mms.registerHandler("MessagesToRecover", (a,b)->{
+            try{
+                System.out.println("["+this.port+"]: Received number of MESSAGES TO RECOVER from server " + a.port());
+                Serializer s = new SerializerBuilder().build();
+                int number = s.decode(b);
+    
+                this.messages_to_recover.put(a.port(),number);
+    
+                for(int i = 0 ; i < this.delayed_messages.size() ; i++){
+                    Message<Operation> msg = this.delayed_messages.get(i);
+                    if(msg.port == a.port() ){
+                        if(msg.sender_vector_clock.get(a.port()) > number) {
+                            this.data_to_sync.add(msg);
+                        }
+                        this.delayed_messages.remove(i);
                     }
-                    this.delayed_messages.remove(i);
                 }
             }
-
+            catch(Exception error){
+                error.printStackTrace();
+            }
         }, e);
 
         // handler for receiving crashes from other servers

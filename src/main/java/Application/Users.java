@@ -77,11 +77,7 @@ class User {
             // if the topics map already contains the topic it doesn't update the timestamp, the old one prevails
         }
         // remove topics that aren't part of the list
-        for (Topic t : this.subscribed_topics.keySet()){
-            if (!topics.contains(t)){
-                this.subscribed_topics.remove(t);
-            }
-        }
+        this.subscribed_topics.keySet().removeIf(t -> !topics.contains(t));
     }
 
     public synchronized boolean is_auth(String password){
