@@ -50,7 +50,7 @@ public class Post {
   
     public String toString(){
         StringBuilder postString = new StringBuilder();
-        postString.append(user + " on " + (new Date(date)).toString() + ": \n");
+        postString.append(user+ ": \n");
         postString.append(post + "\n");
         postString.append("Topics: ");
         for(Topic t : topics)
