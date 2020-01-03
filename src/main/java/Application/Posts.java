@@ -47,9 +47,7 @@ public class Posts {
                         subscribed_posts.add(post);
                         num_posts++;
                     }
-                }
-            else
-                System.out.println("There are no posts for the topic "+t.name()+" yet! Do you want to be the first? :) \n");
+                }                
         }
 
         Collections.sort(subscribed_posts, new Comparator<Post>(){
