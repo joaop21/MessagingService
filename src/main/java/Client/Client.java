@@ -47,7 +47,7 @@ public class Client {
         System.out.println("- Login:");
         System.out.print("Username: ");
         String username = sin.readLine();
-        System.out.print("\nPassword: ");
+        System.out.print("Password: ");
         String password = sin.readLine();
         System.out.println("\nTrying to login...");
 
@@ -76,7 +76,8 @@ public class Client {
         }
         System.out.println("What do you want to do?");
         System.out.println("1) Make a New Post         2) Get 10 Most Recent Posts\n" +
-                        "3) Show Subscribed Topics  4) Change Subscribed Topics");
+                        "3) Show Subscribed Topics  4) Change Subscribed Topics\n" +
+                        "5) Logout");
 
         String option = sin.readLine();
         switch (option) {
@@ -92,6 +93,9 @@ public class Client {
             case "4":
                 showChangeTopics(username);
                 break;
+            case "5":
+                System.out.println("See you soon "+username+"!\n");
+                initializeChat();
             default:
                 System.out.println("Invalid option. Please try again.");
                 option = sin.readLine();
@@ -150,6 +154,8 @@ public class Client {
             for(Topic t : ts)
                 System.out.println(t.toString());
 
+
+        System.out.print("\n");
         showMainMenu(username, false);
     }
 
@@ -177,6 +183,8 @@ public class Client {
                 showMainMenu(username, false);
             }
         }
+
+        System.out.print("\n");
         app.set_topics(username,topics);
 
         showMainMenu(username, false);
